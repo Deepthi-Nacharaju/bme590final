@@ -85,7 +85,7 @@ def add_image():
 
 
 @app.route("/process", methods=["POST"])
-def get_process_type():
+def choose_process():
     r = request.get_json()
     patient_id = r['patient_id']
     process_id = r['process_id']
@@ -93,21 +93,22 @@ def get_process_type():
     validate_image(image_file)
     if process_id is 1:
         processor = 'Histogram Equalization'
-        histogram_equalization(image_file)
+        processed_image = histogram_equalization(image_file)
     elif process_id is 2:
         processor = 'Contrast Switch'
-        contrast_switch(image_file)
+        processed_image = contrast_switch(image_file)
     elif process_id is 3:
         processor = 'Log Compression'
-        log_compression(image_file)
+        processed_image = log_compression(image_file)
     elif process_id is 4:
         processor = 'Reverse Video'
-        reverse_video(image_file)
+        processed_image = reverse_video(image_file)
     elif process_id is 0:
         processor = 'Raw Image'
+        processed_image = image_file
     else:
         return jsonify('Not a valid ID')
-    save_image(patient_id, processor, image_file)
+    save_image(patient_id, processor, processed_image)
     return jsonify('YAY!')
 
 
@@ -139,19 +140,19 @@ def save_image(patient_id, processor, image_file):
 
 
 def histogram_equalization(image_file):
-    return
+    return processed_image
 
 
 def contrast_switch(image_file):
-    return
+    return processed_image
 
 
 def log_compression(image_file):
-    return
+    return processed_image
 
 
 def reverse_video(image_file):
-    return
+    return processed_image
 
 
 if __name__ == "__main__":
