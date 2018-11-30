@@ -66,7 +66,7 @@ def add_image():
 
     """
 
-    now = datetime.now()
+    now = datetime.datetime.now()
     data_in = request.get_json()
     required_image_keys = [
 
@@ -87,20 +87,27 @@ def add_image():
 @app.route("/process", methods=["POST"])
 def get_process_type():
     r = request.get_json()
+    patient_id = r['patient_id']
     process_id = r['process_id']
     image_file = r['image_file']
     validate_image(image_file)
     if process_id is 1:
+        processor = 'Histogram Equalization'
         histogram_equalization(image_file)
     elif process_id is 2:
+        processor = 'Contrast Switch'
         contrast_switch(image_file)
     elif process_id is 3:
+        processor = 'Log Compression'
         log_compression(image_file)
     elif process_id is 4:
+        processor = 'Reverse Video'
         reverse_video(image_file)
+    elif process_id is 0:
+        processor = 'Raw Image'
     else:
         return jsonify('Not a valid ID')
-    save_image()
+    save_image(patient_id, processor, image_file)
     return jsonify('YAY!')
 
 
@@ -108,13 +115,25 @@ def validate_image(image_file):
     return
 
 
-def save_image(patient_id, image_file):
+def save_image(patient_id, processor, image_file):
     patient = ImageDB.objects.raw({"_id": int(patient_id)}).first()
     try:
         patient.images.append(image_file)
         patient.save()
     except AttributeError:
         patient.images = image_file
+        patient.save()
+    try:
+        patient.images_time_stamp.append(datetime.datetime.now())
+        patient.save()
+    except AttributeError:
+        patient.images_time_stamp = datetime.datetime.now()
+        patient.save()
+    try:
+        patient.processor.append(processor)
+        patient.save()
+    except AttributeError:
+        patient.processor = processor
         patient.save()
     return
 
