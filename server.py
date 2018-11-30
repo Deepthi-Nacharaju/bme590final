@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 
 class ImageDB(MongoModel):
-    name = fields.CharField(primary_key=True)
+    patient_id = fields.CharField(primary_key=True)
     original = fields.ImageField()
     actions = fields.ListField()
     histogram_count = fields.IntegerField()
@@ -37,27 +37,27 @@ def greeting():
     return jsonify(welcome)
 
 
-@app.route("/data/<image_id>", methods=["GET"])
-def getData(image_id):
+@app.route("/data/<patient_id>", methods=["GET"])
+def get_data(patient_id):
     """
     This function returns all the stored information for a patient
     as a JSON dictionary
 
     Args:
-        image_id (string): string specifying image name.
+        patient_id (string): string specifying image name.
 
     Returns:
         dict_array (dict): stored information for specified image
     """
 
-    u = ImageDB.objects.raw({"_id": image_id}).first()
+    u = ImageDB.objects.raw({"_id": int(patient_id)}).first()
     dict_array = {
                  }
     return jsonify(dict_array)
 
 
 @app.route("/new_image", methods=["POST"])
-def addimage():
+def add_image():
     """
 
     Args:
@@ -108,14 +108,14 @@ def validate_image(image_file):
     return
 
 
-def save_image(image_file):
-    image_list = ImageDB.objects.first()
+def save_image(patient_id, image_file):
+    patient = ImageDB.objects.raw({"_id": int(patient_id)}).first()
     try:
-        image_list.images.append(image_file)
-        image_list.save()
+        patient.images.append(image_file)
+        patient.save()
     except AttributeError:
-        image_list.images = image_file
-        image_list.save()
+        patient.images = image_file
+        patient.save()
     return
 
 
