@@ -15,7 +15,7 @@ def get_process_type():
     r = request.get_json()
     process_id = r['process_id']
     image_file = r['image_file']
-    validate_image()
+    validate_image(image_file)
     if process_id is 1:
         histogram_equalization(image_file)
     elif process_id is 2:
@@ -26,11 +26,24 @@ def get_process_type():
         reverse_video(image_file)
     else:
         return jsonify('Not a valid ID')
+    save_image()
     return jsonify('YAY!')
 
 
 def validate_image(image_file):
     return
+
+
+def save_image(image_file):
+    image_list = ImageDB.objects.first()
+    try:
+        image_list.images.append(image_file)
+        image_list.save()
+    except AttributeError:
+        image_list.images = image_file
+        image_list.save()
+    return
+
 
 def histogram_equalization(image_file):
     return
