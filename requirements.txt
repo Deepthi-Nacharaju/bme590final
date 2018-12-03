@@ -16,3 +16,4 @@ gunicorn
 pymodm
 requests
 sendgrid
+Pillow

@@ -5,6 +5,10 @@ from pymodm import connect
 from pymodm import MongoModel, fields
 import datetime
 import logging
+import base64
+import io
+from matplotlib import pyplot as plt
+import matplotlib.image as mpimg
 logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 app = Flask(__name__)
 
@@ -139,19 +143,36 @@ def save_image(patient_id, processor, image_file):
     return
 
 
+def decode_b64_image(base64_string):
+    image_bytes = base64.b64decode(base64_string)
+    image_buf = io.BytesIO(image_bytes)
+    i = mpimg.imread(image_buf, format='JPG')
+    plt.imshow(i, interpolation='nearest')
+    plt.show()
+
+
+def encode_file_as_b64(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read())
+
+
 def histogram_equalization(image_file):
+    processed_image = 1
     return processed_image
 
 
 def contrast_switch(image_file):
+    processed_image = 1
     return processed_image
 
 
 def log_compression(image_file):
+    processed_image = 1
     return processed_image
 
 
 def reverse_video(image_file):
+    processed_image = 1
     return processed_image
 
 
