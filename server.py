@@ -149,6 +149,7 @@ def decode_b64_image(base64_string):
     i = mpimg.imread(image_buf, format='JPG')
     plt.imshow(i, interpolation='nearest')
     plt.show()
+    return image_bytes
 
 
 def encode_file_as_b64(image_path):
