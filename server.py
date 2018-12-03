@@ -7,15 +7,12 @@ import datetime
 import logging
 import base64
 import io
-from matplotlib import pyplot as plt
-import matplotlib.image as mpimg
 logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 app = Flask(__name__)
 
 
 class ImageDB(MongoModel):
     patient_id = fields.CharField(primary_key=True)
-    original = fields.ImageField()
     actions = fields.ListField()
     histogram_count = fields.IntegerField()
     contrast_count = fields.IntegerField()
@@ -37,8 +34,18 @@ def greeting():
         welcome (string): "Welcome to the image processor"
     """
 
-    welcome = "Welcome to the image processor"
+    welcome = "Welcome to the image processor!"
     return jsonify(welcome)
+
+
+@app.route("/new_patient", methods=["POST"])
+def add_new_patient():
+    r = request.get_json()
+    patient = ImageDB(int(r['patient_id']))
+    patient.save()
+    if len(r) > 1:
+        save_image(r['patient_id'], 'Raw Image', r['image_file'])
+    return jsonify('YAY')
 
 
 @app.route("/data/<patient_id>", methods=["GET"])
@@ -55,9 +62,14 @@ def get_data(patient_id):
     """
 
     u = ImageDB.objects.raw({"_id": int(patient_id)}).first()
-    dict_array = {
-                 }
-    return jsonify(dict_array)
+    out = list()
+    for x in u.images:
+        add = bytes(x, encoding='utf-8')
+        out.append(add)
+    print(out)
+    if not out:
+        out = 'Empty'
+    return jsonify(len(u.images))
 
 
 @app.route("/new_image", methods=["POST"])
@@ -146,9 +158,9 @@ def save_image(patient_id, processor, image_file):
 def decode_b64_image(base64_string):
     image_bytes = base64.b64decode(base64_string)
     image_buf = io.BytesIO(image_bytes)
-    i = mpimg.imread(image_buf, format='JPG')
-    plt.imshow(i, interpolation='nearest')
-    plt.show()
+    #i = mpimg.imread(image_buf, format='JPG')
+    #plt.imshow(i, interpolation='nearest')
+    #plt.show()
     return image_bytes
 
 
