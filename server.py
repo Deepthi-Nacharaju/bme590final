@@ -64,63 +64,40 @@ def get_data(patient_id):
         dict_array (dict): stored information for specified image
     """
 
-    u = ImageDB.objects.raw({"_id": patient_id}).first()
-    out = list()
-    for x in u.images:
-        add = bytes(x, encoding='utf-8')
-        out.append(add)
-    print(out)
-    if not out:
-        out = 'Empty'
-    return jsonify(len(u.images))
+    patient = ImageDB.objects.raw({"_id": patient_id}).first()
+    return_dict = {'images': patient.images,
+                   'processor': patient.processor,
+                   'images_time_stamp': patient.images_time_stamp,
+                   'histogram_count': patient.histogram_count,
+                   'contrast_count': patient.contrast_count,
+                   'log_count': patient.log_count,
+                   'reverse_count': patient.reverse_count}
+    return jsonify(return_dict)
 
 
 @app.route("/new_image", methods=["POST"])
-def add_image():
-    """
-
-    Args:
-
-    Returns:
-
-    """
-
-    now = datetime.datetime.now()
-    data_in = request.get_json()
-    required_image_keys = [
-
-    ]
-    for key in required_image_keys:
-        if key not in data_in.keys():
-            raise ValueError("Key '{}' is missing"
-                             " to initialize image"
-                             " in imageprocessor".format(key))
-    u = ImageDB(
-             )
-    logging.debug("Image {} was"
-                  " successfully initialized".format(u.name))
-    u.save()
-    return u.name
-
-
-@app.route("/process", methods=["POST"])
-def choose_process():
+def new_image():
     r = request.get_json()
     patient_id = r['patient_id']
     process_id = r['process_id']
     image_file = r['image_file']
     validate_image(image_file)
+    patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     if process_id is 1:
         processor = 'Histogram Equalization'
+        patient.histogram_count += 1
         processed_image = histogram_equalization(image_file)
     elif process_id is 2:
         processor = 'Contrast Switch'
+        patient.contrast_count += 1
         processed_image = contrast_switch(image_file)
     elif process_id is 3:
         processor = 'Log Compression'
+        patient.log_count += 1
         processed_image = log_compression(image_file)
     elif process_id is 4:
         processor = 'Reverse Video'
+        patient.reverse_count += 1
         processed_image = reverse_video(image_file)
     elif process_id is 0:
         processor = 'Raw Image'
@@ -174,6 +151,7 @@ def encode_file_as_b64(image_path):
 
 def histogram_equalization(image_file):
     processed_image = 1
+
     return processed_image
 
 
