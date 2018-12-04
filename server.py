@@ -7,8 +7,9 @@ import datetime
 import logging
 import base64
 import io
-logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
+#logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 app = Flask(__name__)
+connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
 
 
 class ImageDB(MongoModel):
@@ -41,11 +42,13 @@ def greeting():
 @app.route("/new_patient", methods=["POST"])
 def add_new_patient():
     r = request.get_json()
-    patient = ImageDB(int(r['patient_id']))
+    patient = ImageDB(int(r['patient_id']),
+                      histogram_count=0,
+                      contrast_count=0,
+                      log_count=0,
+                      reverse_count=0)
     patient.save()
-    if len(r) > 1:
-        save_image(r['patient_id'], 'Raw Image', r['image_file'])
-    return jsonify('YAY')
+    return jsonify('New Patient Initialized with ID: ' + str(r['patient_id']))
 
 
 @app.route("/data/<patient_id>", methods=["GET"])
@@ -61,7 +64,7 @@ def get_data(patient_id):
         dict_array (dict): stored information for specified image
     """
 
-    u = ImageDB.objects.raw({"_id": int(patient_id)}).first()
+    u = ImageDB.objects.raw({"_id": patient_id}).first()
     out = list()
     for x in u.images:
         add = bytes(x, encoding='utf-8')
@@ -125,7 +128,7 @@ def choose_process():
     else:
         return jsonify('Not a valid ID')
     save_image(patient_id, processor, processed_image)
-    return jsonify('YAY!')
+    return jsonify('Upload Successful for Patient ID: ' + str(r['patient_id']))
 
 
 def validate_image(image_file):
@@ -133,7 +136,7 @@ def validate_image(image_file):
 
 
 def save_image(patient_id, processor, image_file):
-    patient = ImageDB.objects.raw({"_id": int(patient_id)}).first()
+    patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     try:
         patient.images.append(image_file)
         patient.save()

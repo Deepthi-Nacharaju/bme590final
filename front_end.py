@@ -35,9 +35,15 @@ if __name__ == "__main__":
     post_dict = {'patient_id': 1}
     r = requests.post(server, json=post_dict)
     print(r.json())
-    #p2_image = encode_file_as_b64('Dogs.jpg')
-    #post_dict = {'patient_id': 2, 'image_file': p2_image}
-    #r = requests.post(server, json=post_dict)
+    post_dict = {'patient_id': 2}
+    r = requests.post(server, json=post_dict)
+    p2_image = encode_file_as_b64('Dogs.jpg')
+    server = "http://127.0.0.1:5000/process"
+    post_dict = {'patient_id': 2,
+                 'process_id': 0,
+                 'image_file': p2_image}
+    r = requests.post(server, json=post_dict)
+    print(r.json())
     #server = "http://127.0.0.1:5000/data/2"
     #r = requests.get(server)
     #print(r.json())
