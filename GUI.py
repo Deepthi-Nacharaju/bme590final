@@ -1,9 +1,9 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QLineEdit, QMessageBox, QLabel, QFileDialog
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import *
+import PyQt5.QtGui as QtGui
 import PyQt5.QtCore as QtCore
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import *
 import front_end
 
 
@@ -50,14 +50,40 @@ class App(QMainWindow):
         # Label Original Image Space
         self.OG_label = QLabel(self)
         self.OG_label.setText('Original Image')
-        self.OG_label.move(275, 15)
+        self.OG_label.move(280, 15)
+
+        # Label Processed Image Space
+        self.OG_label_processed = QLabel(self)
+        self.OG_label_processed.move(580, 20)
+        self.OG_label_processed.setText('Processed Image')
+        self.OG_label_processed.adjustSize()
+
         # Original Image
         self.label_image = QLabel(self)
         self.label_image.setMaximumWidth(256)
         self.label_image.setMaximumHeight(256)
         self.label_image.move(200, 55)
 
+        # Create background for original image
+        pixmap = QPixmap('white.png')
+        pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
+        self.label_image.setPixmap(pixmap_scale)
+        self.label_image.resize(pixmap_scale.width(), pixmap_scale.height())
+
+        # Initialize Processed Image Label
+        self.label_image_processed = QLabel(self)
+        self.label_image_processed.setMaximumWidth(256)
+        self.label_image_processed.setMaximumHeight(256)
+        self.label_image_processed.move(500, 55)
+
+        # Create background for processed image
+        pixmap = QPixmap('white.png')
+        pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
+        self.label_image_processed.setPixmap(pixmap_scale)
+        self.label_image_processed.resize(pixmap_scale.width(), pixmap_scale.height())
+
         self.show()
+
 
     @pyqtSlot()
     def openFileNameDialog(self):
