@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QLineEdit, QMessageBox, QLabel, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QLineEdit, QMessageBox, QLabel, QFileDialog, QTextEdit
 from PyQt5.QtGui import *
 import PyQt5.QtGui as QtGui
 import PyQt5.QtCore as QtCore
@@ -27,6 +27,17 @@ class App(QMainWindow):
         self.textbox.move(90, 20)
         self.textbox.resize(50, 20)
 
+        # Create notes textbox
+        self.notes = QTextEdit(self)
+        self.notes.move(800, 75)
+        self.notes.resize(250, 150)
+
+        # Label Processed Image Space
+        self.notes_label = QLabel(self)
+        self.notes_label.move(800, 50)
+        self.notes_label.setText('Notes:')
+        self.notes_label.adjustSize()
+
         # Create Label for Patient_ID Box
         self.label = QLabel(self)
         self.label.setText('Patient ID:')
@@ -41,7 +52,21 @@ class App(QMainWindow):
 
         # Create Open button to open image file
         self.button_open = QPushButton('Open', self)
-        self.button_open.move(850, 700)
+        self.button_open.move(225, 270)
+
+        # Create clear button for OG image file
+        self.button_clear = QPushButton('Clear', self)
+        self.button_clear.move(325, 270)
+
+        # connect button to function on click clear OG
+        self.button_clear.clicked.connect(self.on_click_clear_OG)
+
+        # Create clear button for prcoessed image file
+        self.button_clear_process = QPushButton('Clear', self)
+        self.button_clear_process.move(575, 270)
+
+        # connect button to function on_click
+        self.button_clear.clicked.connect(self.on_click_clear_processed)
 
         # Open File dialog
         # connect button to function on_click
@@ -104,6 +129,20 @@ class App(QMainWindow):
         QMessageBox.question(self, 'Message', "You typed: " + textboxValue, QMessageBox.Ok,
                              QMessageBox.Ok)
         self.textbox.setText("")
+
+    @pyqtSlot()
+    def on_click_clear_OG(self):
+        pixmap = QPixmap('white.png')
+        pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
+        self.label_image.setPixmap(pixmap_scale)
+        self.label_image.resize(pixmap_scale.width(), pixmap_scale.height())
+
+    @pyqtSlot()
+    def on_click_clear_processed(self):
+        pixmap = QPixmap('white.png')
+        pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
+        self.label_image_processed.setPixmap(pixmap_scale)
+        self.label_image_processed.resize(pixmap_scale.width(), pixmap_scale.height())
 
 
 if __name__ == '__main__':
