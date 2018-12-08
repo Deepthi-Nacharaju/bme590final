@@ -25,7 +25,7 @@ class App(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        # Create textbox
+        # Create Patient ID
         self.textbox = QLineEdit(self)
         self.textbox.move(90, 20)
         self.textbox.resize(50, 20)
@@ -66,14 +66,49 @@ class App(QMainWindow):
 
         # Create clear button for prcoessed image file
         self.button_clear_process = QPushButton('Clear', self)
-        self.button_clear_process.move(575, 270)
+        self.button_clear_process.move(645, 270)
 
         # connect button to function on_click
         self.button_clear.clicked.connect(self.on_click_clear_processed)
 
-        # Open File dialog
+        # Create save button for prcoessed image file JPEG
+        self.button_JPEG = QPushButton('JPEG', self)
+        self.button_JPEG.move(530, 270)
+
+        # Create save button for prcoessed image file PNG
+        self.button_PNG = QPushButton('PNG', self)
+        self.button_PNG.move(530, 295)
+
+        # Create save button for prcoessed image file TIFF
+        self.button_TIFF = QPushButton('TIFF', self)
+        self.button_TIFF.move(530, 320)
+
+        # Create Label for 'Save As:'
+        self.label_save_as = QLabel(self)
+        self.label_save_as.setText('Save As:')
+        self.label_save_as.move(555, 250)
+
+        # Create Label for 'To Location:'
+        self.label_to_location = QLabel(self)
+        self.label_to_location.setText('To Location:')
+        self.label_to_location.move(655, 292)
+
+        # Create Location Line Edit
+        self.textbox_location = QLineEdit(self)
+        self.textbox_location.move(645, 320)
+        self.textbox_location.resize(150, 20)
+
+        # Open File dialogue to find save path
         # connect button to function on_click
         self.button_open.clicked.connect(self.openFileNameDialog)
+
+        # Create save button for processed image file TIFF
+        self.button_choose_location = QPushButton('Choose', self)
+        self.button_choose_location.move(730, 292)
+
+        # Open File dialog
+        # connect button to function on_click
+        self.button_choose_location.clicked.connect(self.open_choose_location)
 
         # Label Original Image Space
         self.OG_label = QLabel(self)
@@ -127,6 +162,17 @@ class App(QMainWindow):
             self.label_image.setPixmap(pixmap_scale)
             self.label_image.resize(pixmap_scale.width(),
                                     pixmap_scale.height())
+
+    @pyqtSlot()
+    def open_choose_location(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName = QFileDialog.getExistingDirectory(None,
+                                                       'Save As',
+                                                       'c:\\',
+                                                       QFileDialog.ShowDirsOnly)
+        if fileName:
+            self.textbox_location.setText(fileName)
 
     @pyqtSlot()
     def on_click(self):
