@@ -7,7 +7,7 @@ import datetime
 import logging
 import base64
 import io
-#logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
+# logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 app = Flask(__name__)
 connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
 
@@ -138,9 +138,9 @@ def save_image(patient_id, processor, image_file):
 def decode_b64_image(base64_string):
     image_bytes = base64.b64decode(base64_string)
     image_buf = io.BytesIO(image_bytes)
-    #i = mpimg.imread(image_buf, format='JPG')
-    #plt.imshow(i, interpolation='nearest')
-    #plt.show()
+    # i = mpimg.imread(image_buf, format='JPG')
+    # plt.imshow(i, interpolation='nearest')
+    # plt.show()
     return image_bytes
 
 

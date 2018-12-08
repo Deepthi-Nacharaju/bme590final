@@ -1,5 +1,8 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QLineEdit, QMessageBox, QLabel, QFileDialog, QTextEdit
+from PyQt5.QtWidgets import QMainWindow, QApplication, \
+    QWidget, QPushButton, \
+    QAction, QLineEdit, QMessageBox, \
+    QLabel, QFileDialog, QTextEdit
 from PyQt5.QtGui import *
 import PyQt5.QtGui as QtGui
 import PyQt5.QtCore as QtCore
@@ -105,10 +108,10 @@ class App(QMainWindow):
         pixmap = QPixmap('white.png')
         pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
         self.label_image_processed.setPixmap(pixmap_scale)
-        self.label_image_processed.resize(pixmap_scale.width(), pixmap_scale.height())
+        self.label_image_processed.resize(pixmap_scale.width(),
+                                          pixmap_scale.height())
 
         self.show()
-
 
     @pyqtSlot()
     def openFileNameDialog(self):
@@ -119,9 +122,11 @@ class App(QMainWindow):
                                                   options=options)
         if fileName:
             pixmap = QPixmap('Dogs.jpg')
-            pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
+            pixmap_scale = pixmap.scaled(256, 256,
+                                         QtCore.Qt.KeepAspectRatio)
             self.label_image.setPixmap(pixmap_scale)
-            self.label_image.resize(pixmap_scale.width(), pixmap_scale.height())
+            self.label_image.resize(pixmap_scale.width(),
+                                    pixmap_scale.height())
 
     @pyqtSlot()
     def on_click(self):
@@ -142,7 +147,8 @@ class App(QMainWindow):
         pixmap = QPixmap('white.png')
         pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
         self.label_image_processed.setPixmap(pixmap_scale)
-        self.label_image_processed.resize(pixmap_scale.width(), pixmap_scale.height())
+        self.label_image_processed.resize(pixmap_scale.width(),
+                                          pixmap_scale.height())
 
 
 if __name__ == '__main__':
