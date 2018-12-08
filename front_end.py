@@ -45,7 +45,7 @@ if __name__ == "__main__":
                  'image_file': p2_image}
     r = requests.post(server, json=post_dict)
     print(r.json())
-    #server = "http://127.0.0.1:5000/data/2"
-    #r = requests.get(server)
-    #print(r.json())
+    # server = "http://127.0.0.1:5000/data/2"
+    # r = requests.get(server)
+    # print(r.json())
 
