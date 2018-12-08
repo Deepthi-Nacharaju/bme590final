@@ -1,13 +1,16 @@
 from PIL import Image, ImageFilter
 import base64
 import io
+import requests
 from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
+import PyQt5
 
 
 def encode_file_as_b64(image_path):
     with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read())
+        en64 = base64.b64encode(image_file.read())
+        return str(en64)
 
 
 def decode_b64_image(base64_string):
@@ -26,4 +29,22 @@ def read_jpg(pic_str):
 
 
 if __name__ == "__main__":
-    out = read_jpg('Dogs.jpg')
+    server = "http://127.0.0.1:5000/"
+    r = requests.get(server)
+    print(r.json())
+    server = "http://127.0.0.1:5000/new_patient"
+    post_dict = {'patient_id': 1}
+    r = requests.post(server, json=post_dict)
+    print(r.json())
+    post_dict = {'patient_id': 2}
+    r = requests.post(server, json=post_dict)
+    p2_image = encode_file_as_b64('Dogs.jpg')
+    server = "http://127.0.0.1:5000/new_image"
+    post_dict = {'patient_id': 2,
+                 'process_id': 0,
+                 'image_file': p2_image}
+    r = requests.post(server, json=post_dict)
+    print(r.json())
+    # server = "http://127.0.0.1:5000/data/2"
+    # r = requests.get(server)
+    # print(r.json())

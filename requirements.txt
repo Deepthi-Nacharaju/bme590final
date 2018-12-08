@@ -17,3 +17,4 @@ pymodm
 requests
 sendgrid
 Pillow
+PyQt5

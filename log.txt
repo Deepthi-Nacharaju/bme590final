@@ -1,4 +1,32 @@
-DEBUG:PIL.Image:Error closing: 'NoneType' object has no attribute 'close'
-DEBUG:matplotlib.font_manager:findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0 to DejaVu Sans ('/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/matplotlib/mpl-data/fonts/ttf/DejaVuSans.ttf') with score of 0.050000.
-DEBUG:matplotlib.axes._base:update_title_pos
-DEBUG:matplotlib.axes._base:update_title_pos
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:werkzeug:127.0.0.1 - - [04/Dec/2018 15:54:18] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [04/Dec/2018 15:54:18] "POST /new_patient HTTP/1.1" 200 -
+ERROR:flask.app:Exception on /new_patient [POST]
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymodm/queryset.py", line 127, in first
+    return next(iter(self.limit(-1)))
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/_compat.py", line 35, in reraise
+    raise value
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/Users/deepthinacharaju/Documents/Duke/Class/Fall 2018/BME590/bme590final/server.py", line 52, in add_new_patient
+    save_image(r['patient_id'], 'Raw Image', r['image_file'])
+  File "/Users/deepthinacharaju/Documents/Duke/Class/Fall 2018/BME590/bme590final/server.py", line 141, in save_image
+    patient = ImageDB.objects.raw({"_id": int(patient_id)}).first()
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymodm/queryset.py", line 129, in first
+    raise self._model.DoesNotExist()
+server.DoesNotExist
+INFO:werkzeug:127.0.0.1 - - [04/Dec/2018 15:54:18] "POST /new_patient HTTP/1.1" 500 -
