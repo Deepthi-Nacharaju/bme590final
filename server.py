@@ -83,6 +83,7 @@ def get_data(patient_id):
     }
     return jsonify(dict_array)
 
+
 @app.route("/new_image", methods=["POST"])
 def new_image():
     r = request.get_json()
