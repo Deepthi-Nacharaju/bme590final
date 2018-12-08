@@ -4,6 +4,7 @@ import io
 import requests
 from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
+import PyQt5
 
 
 def encode_file_as_b64(image_path):
@@ -38,7 +39,7 @@ if __name__ == "__main__":
     post_dict = {'patient_id': 2}
     r = requests.post(server, json=post_dict)
     p2_image = encode_file_as_b64('Dogs.jpg')
-    server = "http://127.0.0.1:5000/process"
+    server = "http://127.0.0.1:5000/new_image"
     post_dict = {'patient_id': 2,
                  'process_id': 0,
                  'image_file': p2_image}
