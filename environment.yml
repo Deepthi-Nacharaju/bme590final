@@ -12,6 +12,7 @@ dependencies:
   - pip
   - scikit-image
   - scikit-learn
+  - pillow
   - pip:
     - pymodm
 
