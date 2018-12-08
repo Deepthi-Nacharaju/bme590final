@@ -9,6 +9,8 @@ import base64
 import io
 from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
+from skimage import data, io, filters, img_as_float, exposure
+from PIL import Image
 logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 app = Flask(__name__)
 
@@ -55,8 +57,18 @@ def get_data(patient_id):
     """
 
     u = ImageDB.objects.raw({"_id": int(patient_id)}).first()
-    dict_array = {
-                 }
+    dict_array ={
+        "patient_id" : u.patient_id,
+        "original" : u.original,
+        "actions" : u.actions,
+        "histogram_count" : u.histogram,
+        "contrast_count" : u.contrast_count,
+        "log_count" : u.log_count,
+        "reverse_count" : u.reverse_count,
+        "images" : u.images,
+        "processor" : u.processor,
+        "images_time_stamp" : u.images_time_stamp,
+    }
     return jsonify(dict_array)
 
 
@@ -156,9 +168,16 @@ def encode_file_as_b64(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read())
 
+def make_grayscale(image_file):
+    image = Image.open(io.BytesIO(image_file))
+    grayscale_image = image.convert('L')
+    return image
+
 
 def histogram_equalization(image_file):
-    processed_image = 1
+    image = Image.open(io.BytesIO(image_file))
+    image_eq = exposure.equalize_hist(image)
+    processed_image = image_eq
     return processed_image
 
 
