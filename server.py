@@ -57,17 +57,17 @@ def get_data(patient_id):
     """
 
     u = ImageDB.objects.raw({"_id": int(patient_id)}).first()
-    dict_array ={
-        "patient_id" : u.patient_id,
-        "original" : u.original,
-        "actions" : u.actions,
-        "histogram_count" : u.histogram,
-        "contrast_count" : u.contrast_count,
-        "log_count" : u.log_count,
-        "reverse_count" : u.reverse_count,
-        "images" : u.images,
-        "processor" : u.processor,
-        "images_time_stamp" : u.images_time_stamp,
+    dict_array = {
+        "patient_id": u.patient_id,
+        "original": u.original,
+        "actions": u.actions,
+        "histogram_count": u.histogram,
+        "contrast_count": u.contrast_count,
+        "log_count": u.log_count,
+        "reverse_count": u.reverse_count,
+        "images": u.images,
+        "processor": u.processor,
+        "images_time_stamp": u.images_time_stamp,
     }
     return jsonify(dict_array)
 
@@ -167,6 +167,7 @@ def decode_b64_image(base64_string):
 def encode_file_as_b64(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read())
+
 
 def make_grayscale(image_file):
     image = Image.open(io.BytesIO(image_file))
