@@ -55,11 +55,11 @@ class App(QMainWindow):
 
         # Create Open button to open image file
         self.button_open = QPushButton('Open', self)
-        self.button_open.move(225, 270)
+        self.button_open.move(125, 270)
 
         # Create clear button for OG image file
         self.button_clear = QPushButton('Clear', self)
-        self.button_clear.move(325, 270)
+        self.button_clear.move(225, 270)
 
         # connect button to function on click clear OG
         self.button_clear.clicked.connect(self.on_click_clear_OG)
@@ -113,7 +113,7 @@ class App(QMainWindow):
         # Label Original Image Space
         self.OG_label = QLabel(self)
         self.OG_label.setText('Original Image')
-        self.OG_label.move(280, 15)
+        self.OG_label.move(180, 15)
 
         # Label Processed Image Space
         self.OG_label_processed = QLabel(self)
@@ -125,7 +125,7 @@ class App(QMainWindow):
         self.label_image = QLabel(self)
         self.label_image.setMaximumWidth(256)
         self.label_image.setMaximumHeight(256)
-        self.label_image.move(200, 55)
+        self.label_image.move(100, 55)
 
         # Create background for original image
         pixmap = QPixmap('white.png')
@@ -145,6 +145,36 @@ class App(QMainWindow):
         self.label_image_processed.setPixmap(pixmap_scale)
         self.label_image_processed.resize(pixmap_scale.width(),
                                           pixmap_scale.height())
+        # Original Image Histogram
+        self.OG_image_histogram = QLabel(self)
+        self.OG_image_histogram.setMaximumWidth(256)
+        self.OG_image_histogram.setMaximumHeight(256)
+        self.OG_image_histogram.move(100, 400)
+        self.OG_image_histogram.setPixmap(pixmap_scale)
+        self.OG_image_histogram.resize(pixmap_scale.width(),
+                                          pixmap_scale.height())
+        # Prcoessed Image Histogram
+        self.processed_image_histogram = QLabel(self)
+        self.processed_image_histogram.setMaximumWidth(256)
+        self.processed_image_histogram.setMaximumHeight(256)
+        self.processed_image_histogram.move(500, 400)
+        self.processed_image_histogram.setPixmap(pixmap_scale)
+        self.processed_image_histogram.resize(pixmap_scale.width(),
+                                          pixmap_scale.height())
+
+        # Label Original Image Space histogram
+        self.OG_label_histogram = QLabel(self)
+        self.OG_label_histogram.setText('Original Color Intensity')
+        self.OG_label_histogram.move(150, 370)
+        self.OG_label_histogram.adjustSize()
+
+        # Label Original Image Space histogram
+        self.processed_label_histogram = QLabel(self)
+        self.processed_label_histogram.setText('Processed Color Intensity')
+        self.processed_label_histogram.move(550, 370)
+        self.processed_label_histogram.adjustSize()
+
+
 
         self.show()
 
@@ -156,12 +186,19 @@ class App(QMainWindow):
                                                   "Image files (*.jpg *.gif)",
                                                   options=options)
         if fileName:
-            pixmap = QPixmap('Dogs.jpg')
+            pixmap = QPixmap(fileName)
             pixmap_scale = pixmap.scaled(256, 256,
                                          QtCore.Qt.KeepAspectRatio)
             self.label_image.setPixmap(pixmap_scale)
             self.label_image.resize(pixmap_scale.width(),
                                     pixmap_scale.height())
+            front_end.get_histogram_values(fileName, 'original_histogram.jpg')
+            pixmap = QPixmap('original_histogram.jpg')
+            pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
+            self.OG_image_histogram.setPixmap(pixmap_scale)
+            self.OG_image_histogram.resize(pixmap_scale.width(),
+                                           pixmap_scale.height())
+
 
     @pyqtSlot()
     def open_choose_location(self):
