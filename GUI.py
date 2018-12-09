@@ -8,7 +8,7 @@ import PyQt5.QtGui as QtGui
 import PyQt5.QtCore as QtCore
 from PyQt5.QtCore import *
 import front_end
-
+import datetime
 
 class App(QMainWindow):
 
@@ -33,7 +33,7 @@ class App(QMainWindow):
         # Create notes textbox
         self.notes = QTextEdit(self)
         self.notes.move(800, 75)
-        self.notes.resize(250, 150)
+        self.notes.resize(250, 100)
 
         # Label Processed Image Space
         self.notes_label = QLabel(self)
@@ -49,9 +49,9 @@ class App(QMainWindow):
         # Create Upload button in the window
         self.button = QPushButton('Upload', self)
         self.button.move(950, 700)
-
-        # connect button to function on_click
-        self.button.clicked.connect(self.on_click)
+        # Connect Upload button to time stamp update
+        self.button.clicked.connect(self.on_click_Upload)
+        self.button.setEnabled(False)
 
         # Create Open button to open image file
         self.button_open = QPushButton('Open', self)
@@ -66,37 +66,37 @@ class App(QMainWindow):
 
         # Create clear button for prcoessed image file
         self.button_clear_process = QPushButton('Clear', self)
-        self.button_clear_process.move(645, 270)
+        self.button_clear_process.move(605, 270)
 
         # connect button to function on_click
-        self.button_clear.clicked.connect(self.on_click_clear_processed)
+        self.button_clear_process.clicked.connect(self.on_click_clear_processed)
 
         # Create save button for prcoessed image file JPEG
         self.button_JPEG = QPushButton('JPEG', self)
-        self.button_JPEG.move(530, 270)
+        self.button_JPEG.move(505, 270)
 
         # Create save button for prcoessed image file PNG
         self.button_PNG = QPushButton('PNG', self)
-        self.button_PNG.move(530, 295)
+        self.button_PNG.move(505, 295)
 
         # Create save button for prcoessed image file TIFF
         self.button_TIFF = QPushButton('TIFF', self)
-        self.button_TIFF.move(530, 320)
+        self.button_TIFF.move(505, 320)
 
         # Create Label for 'Save As:'
         self.label_save_as = QLabel(self)
         self.label_save_as.setText('Save As:')
-        self.label_save_as.move(555, 250)
+        self.label_save_as.move(530, 250)
 
         # Create Label for 'To Location:'
         self.label_to_location = QLabel(self)
         self.label_to_location.setText('To Location:')
-        self.label_to_location.move(655, 292)
+        self.label_to_location.move(610, 292)
 
         # Create Location Line Edit
         self.textbox_location = QLineEdit(self)
-        self.textbox_location.move(645, 320)
-        self.textbox_location.resize(150, 20)
+        self.textbox_location.move(610, 320)
+        self.textbox_location.resize(130, 20)
 
         # Open File dialogue to find save path
         # connect button to function on_click
@@ -104,7 +104,8 @@ class App(QMainWindow):
 
         # Create save button for processed image file TIFF
         self.button_choose_location = QPushButton('Choose', self)
-        self.button_choose_location.move(730, 292)
+        self.button_choose_location.move(680, 292)
+        self.button_choose_location.resize(75,25)
 
         # Open File dialog
         # connect button to function on_click
@@ -147,17 +148,18 @@ class App(QMainWindow):
                                           pixmap_scale.height())
         # Original Image Histogram
         self.OG_image_histogram = QLabel(self)
-        self.OG_image_histogram.setMaximumWidth(256)
-        self.OG_image_histogram.setMaximumHeight(256)
-        self.OG_image_histogram.move(100, 400)
+        self.OG_image_histogram.setMaximumWidth(400)
+        self.OG_image_histogram.setMaximumHeight(400)
+        self.OG_image_histogram.move(25, 400)
+        pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
         self.OG_image_histogram.setPixmap(pixmap_scale)
         self.OG_image_histogram.resize(pixmap_scale.width(),
                                           pixmap_scale.height())
         # Prcoessed Image Histogram
         self.processed_image_histogram = QLabel(self)
-        self.processed_image_histogram.setMaximumWidth(256)
-        self.processed_image_histogram.setMaximumHeight(256)
-        self.processed_image_histogram.move(500, 400)
+        self.processed_image_histogram.setMaximumWidth(400)
+        self.processed_image_histogram.setMaximumHeight(400)
+        self.processed_image_histogram.move(450, 400)
         self.processed_image_histogram.setPixmap(pixmap_scale)
         self.processed_image_histogram.resize(pixmap_scale.width(),
                                           pixmap_scale.height())
@@ -171,12 +173,54 @@ class App(QMainWindow):
         # Label Original Image Space histogram
         self.processed_label_histogram = QLabel(self)
         self.processed_label_histogram.setText('Processed Color Intensity')
-        self.processed_label_histogram.move(550, 370)
+        self.processed_label_histogram.move(575, 370)
         self.processed_label_histogram.adjustSize()
 
+        # Processing Buttons
+        # Histogram Equalization
+        self.button_HE = QPushButton('Histogram \n Equalization', self)
+        self.button_HE.move(375, 55)
+        self.button_HE.resize(110, 60)
 
+        # Contrast Stretching
+        self.button_CS = QPushButton('Contrast \n Stretching', self)
+        self.button_CS.move(375, 105)
+        self.button_CS.resize(110, 60)
 
+        # Log Compression
+        self.button_LG = QPushButton('Log \n Compression', self)
+        self.button_LG.move(375, 155)
+        self.button_LG.resize(110, 60)
+
+        # Reverse Video
+        self.button_RV = QPushButton('Reverse \n Video', self)
+        self.button_RV.move(375, 205)
+        self.button_RV.resize(110, 60)
+
+        # TimeStamp Label Name
+        self.time_stamp_name = QLabel(self)
+        self.time_stamp_name.setText('Last Upload Time Stamp:')
+        self.time_stamp_name.move(800, 175)
+        self.time_stamp_name.adjustSize()
+
+        # TimeStamp Label
+        self.time_stamp_label = QLabel(self)
+        self.time_stamp_label.move(800, 195)
+        self.time_stamp_label.adjustSize()
+
+        # Time to Process Image Label
+        self.process_time_image = QLabel(self)
+        self.process_time_image.setText('Time to Process Image:')
+        self.process_time_image.move(800, 215)
+        self.process_time_image.adjustSize()
+
+        # Image Size in Pixels
+        self.image_size_label = QLabel(self)
+        self.image_size_label.setText('Image Size:')
+        self.image_size_label.move(135, 300)
+        self.image_size_label.adjustSize()
         self.show()
+
 
     @pyqtSlot()
     def openFileNameDialog(self):
@@ -194,10 +238,16 @@ class App(QMainWindow):
                                     pixmap_scale.height())
             front_end.get_histogram_values(fileName, 'original_histogram.jpg')
             pixmap = QPixmap('original_histogram.jpg')
-            pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
+            pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
             self.OG_image_histogram.setPixmap(pixmap_scale)
             self.OG_image_histogram.resize(pixmap_scale.width(),
                                            pixmap_scale.height())
+            self.image_size_label.setText('Image Size: ' +
+                                          str(pixmap.height()) +
+                                          'x' +
+                                          str(pixmap.width()) +
+                                          ' pixels')
+            self.image_size_label.adjustSize()
 
 
     @pyqtSlot()
@@ -205,19 +255,11 @@ class App(QMainWindow):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName = QFileDialog.getExistingDirectory(None,
-                                                       'Save As',
-                                                       'c:\\',
-                                                       QFileDialog.ShowDirsOnly)
+                                                    'Save As',
+                                                    'c:\\',
+                                                    QFileDialog.ShowDirsOnly)
         if fileName:
             self.textbox_location.setText(fileName)
-
-    @pyqtSlot()
-    def on_click(self):
-        textboxValue = self.textbox.text()
-        QMessageBox.question(self, 'Message', "You typed: " +
-                             textboxValue, QMessageBox.Ok,
-                             QMessageBox.Ok)
-        self.textbox.setText("")
 
     @pyqtSlot()
     def on_click_clear_OG(self):
@@ -225,6 +267,11 @@ class App(QMainWindow):
         pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
         self.label_image.setPixmap(pixmap_scale)
         self.label_image.resize(pixmap_scale.width(), pixmap_scale.height())
+        pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+        self.OG_image_histogram.setPixmap(pixmap_scale)
+        self.OG_image_histogram.resize(pixmap_scale.width(),
+                                       pixmap_scale.height())
+        self.show()
 
     @pyqtSlot()
     def on_click_clear_processed(self):
@@ -233,6 +280,15 @@ class App(QMainWindow):
         self.label_image_processed.setPixmap(pixmap_scale)
         self.label_image_processed.resize(pixmap_scale.width(),
                                           pixmap_scale.height())
+        pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+        self.processed_image_histogram.setPixmap(pixmap_scale)
+        self.processed_image_histogram.resize(pixmap_scale.width(),
+                                          pixmap_scale.height())
+
+    @pyqtSlot()
+    def on_click_Upload(self):
+        self.time_stamp_label.setText(datetime.datetime.now().strftime("%m-%d-%Y %I:%M%p"))
+        self.time_stamp_label.adjustSize()
 
 
 if __name__ == '__main__':
