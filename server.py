@@ -7,10 +7,11 @@ import datetime
 import logging
 import base64
 import io
+import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
 from skimage import data, io, filters, img_as_float, exposure
-from PIL import Image
+from PIL import Image, ImageStat
 logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 app = Flask(__name__)
 
@@ -156,43 +157,73 @@ def save_image(patient_id, processor, image_file):
 
 
 def decode_b64_image(base64_string):
-    image_bytes = base64.b64decode(base64_string)
-    image_buf = io.BytesIO(image_bytes)
-    i = mpimg.imread(image_buf, format='JPG')
-    plt.imshow(i, interpolation='nearest')
-    plt.show()
-    return image_bytes
+    """
+
+    :param base64_string:
+    :return reconstructed_image: PIL image
+    """
+    from skimage import io as im
+    temp = open("temporary.png", "wb")
+    temp.write(base64.b64decode(base64_string))
+    temp.close()
+    reconstructed_image = im.imread("temporary.png")
+#    image_bytes = base64.b64decode(base64_string)
+#    image_buf = io.BytesIO(image_bytes)
+#    i = mpimg.imread(image_buf, format='JPG')
+#    plt.imshow(i, interpolation='nearest')
+#    plt.show()
+    return reconstructed_image
 
 
-def encode_file_as_b64(image_path):
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read())
+def encode_file_as_b64(image_array):
+    image = Image.fromarray(image_array)
+    buffer = io.BytesIO()
+    image.save(buffer, format="JPEG")
+    image_bytes = buffer.getvalue()
+    image_string = base64.b64encode(image_bytes.decode("utf-8"))
+#    with open(image_path, "rb") as image_file:
+#        return base64.b64encode(image_file.read())
+    return image_string
 
 
-def make_grayscale(image_file):
-    image = Image.open(io.BytesIO(image_file))
-    grayscale_image = image.convert('L')
-    return image
+def make_gray(base64_string):
+    """
+
+    :param base64_string:
+    :return gray_image: PIL image
+    """
+    from skimage import io as im
+    img = open("gray.png", "wb")
+    img.write(base64.b64decode(base64_string))
+    img.close()
+    image = Image.open("gray.png")
+    gray_scale = image.convert('LA')
+    gray_scale.save('gray.png')
+    gray_image = im.imread("gray.png")
+    return gray_image
 
 
-def histogram_equalization(image_file):
-    image = Image.open(io.BytesIO(image_file))
-    image_eq = exposure.equalize_hist(image)
-    processed_image = image_eq
+def histogram_equalization(pil_image):
+    equalized = exposure.equalize_hist(pil_image.astype('uint8'))
+    normalized = 255*equalized
+    processed_image = normalized.astype('uint8')
     return processed_image
 
 
-def contrast_switch(image_file):
+def contrast_stretch(pil_image):
+    p2 = np.percentile(pil_image, 2)
+    p98 = np.percentile(pil_image, 98)
+    rescaled_image = exposure.rescale_intensity(pil_image, in_range=(p2, p98))
+    return rescaled_image
+
+
+def log_compression(pil_image):
     processed_image = 1
     return processed_image
 
 
-def log_compression(image_file):
-    processed_image = 1
-    return processed_image
+def reverse_video(pil_image):
 
-
-def reverse_video(image_file):
     processed_image = 1
     return processed_image
 
@@ -201,3 +232,5 @@ if __name__ == "__main__":
     connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
     # app.run(host="127.0.0.1")
     app.run(host="0.0.0.0")
+    encoded = encode_file_as_b64('Dogs.jpg')
+    print(type(encoded))
