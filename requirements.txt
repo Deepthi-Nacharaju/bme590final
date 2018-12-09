@@ -17,4 +17,6 @@ pymodm
 requests
 sendgrid
 Pillow
+imageio
 PyQt5
+
