@@ -13,18 +13,33 @@ import colorsys
 from PIL import Image
 
 
-def encode_file_as_b64(image_path):
-    with open(image_path, "rb") as image_file:
-        en64 = base64.b64encode(image_file.read())
-        return str(en64)
-
-
 def decode_b64_image(base64_string):
-    image_bytes = base64.b64decode(base64_string)
-    image_buf = io.BytesIO(image_bytes)
-    i = mpimg.imread(image_buf, format='JPG')
-    plt.imshow(i, interpolation='nearest')
-    plt.show()
+    """
+    :param base64_string:
+    :return reconstructed_image: PIL image
+    """
+    from skimage import io as im
+    temp = open("temporary.png", "wb")
+    temp.write(base64.b64decode(base64_string))
+    temp.close()
+    reconstructed_image = im.imread("temporary.png")
+#    image_bytes = base64.b64decode(base64_string)
+#    image_buf = io.BytesIO(image_bytes)
+#    i = mpimg.imread(image_buf, format='JPG')
+#    plt.imshow(i, interpolation='nearest')
+#    plt.show()
+    return reconstructed_image
+
+
+def encode_file_as_b64(image_array):
+    image = Image.fromarray(image_array)
+    buffer = io.BytesIO()
+    image.save(buffer, format="JPEG")
+    image_bytes = buffer.getvalue()
+    image_string = base64.b64encode(image_bytes.decode("utf-8"))
+#    with open(image_path, "rb") as image_file:
+#        return base64.b64encode(image_file.read())
+    return image_string
 
 
 def read_jpg(pic_str):

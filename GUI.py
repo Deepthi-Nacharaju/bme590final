@@ -237,6 +237,7 @@ class App(QMainWindow):
         self.image_size_label.setText('Image Size:')
         self.image_size_label.move(135, 300)
         self.image_size_label.adjustSize()
+        self.fileName = ''
         self.show()
         try:
             r = requests.get(server)
@@ -351,7 +352,6 @@ class App(QMainWindow):
             self.server_status.setText('Connection Failure')
         except json.decoder.JSONDecodeError:
             self.server_status.setText('Server Returned Nothing')
-
 
 
 if __name__ == '__main__':

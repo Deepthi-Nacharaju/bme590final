@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
 from skimage import data, io, filters, img_as_float, exposure
 from PIL import Image, ImageStat
-logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
+#logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 app = Flask(__name__)
 connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
 
@@ -96,6 +96,7 @@ def new_image():
     patient_id = r['patient_id']
     process_id = r['process_id']
     image_file_encoded = r['image_file']
+    print(image_file_encoded)
     patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     image_file = decode_b64_image(image_file_encoded)
     if process_id is 1:
