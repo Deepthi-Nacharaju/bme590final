@@ -10,6 +10,7 @@ from PyQt5.QtCore import *
 import front_end
 import datetime
 
+
 class App(QMainWindow):
 
     def __init__(self):
@@ -64,22 +65,23 @@ class App(QMainWindow):
         # connect button to function on click clear OG
         self.button_clear.clicked.connect(self.on_click_clear_OG)
 
-        # Create clear button for prcoessed image file
+        # Create clear button for processed image file
         self.button_clear_process = QPushButton('Clear', self)
         self.button_clear_process.move(605, 270)
 
         # connect button to function on_click
-        self.button_clear_process.clicked.connect(self.on_click_clear_processed)
+        self.button_clear_process.clicked.connect(
+            self.on_click_clear_processed)
 
-        # Create save button for prcoessed image file JPEG
+        # Create save button for processed image file JPEG
         self.button_JPEG = QPushButton('JPEG', self)
         self.button_JPEG.move(505, 270)
 
-        # Create save button for prcoessed image file PNG
+        # Create save button for processed image file PNG
         self.button_PNG = QPushButton('PNG', self)
         self.button_PNG.move(505, 295)
 
-        # Create save button for prcoessed image file TIFF
+        # Create save button for processed image file TIFF
         self.button_TIFF = QPushButton('TIFF', self)
         self.button_TIFF.move(505, 320)
 
@@ -105,7 +107,7 @@ class App(QMainWindow):
         # Create save button for processed image file TIFF
         self.button_choose_location = QPushButton('Choose', self)
         self.button_choose_location.move(680, 292)
-        self.button_choose_location.resize(75,25)
+        self.button_choose_location.resize(75, 25)
 
         # Open File dialog
         # connect button to function on_click
@@ -154,7 +156,7 @@ class App(QMainWindow):
         pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
         self.OG_image_histogram.setPixmap(pixmap_scale)
         self.OG_image_histogram.resize(pixmap_scale.width(),
-                                          pixmap_scale.height())
+                                       pixmap_scale.height())
         # Prcoessed Image Histogram
         self.processed_image_histogram = QLabel(self)
         self.processed_image_histogram.setMaximumWidth(400)
@@ -162,7 +164,7 @@ class App(QMainWindow):
         self.processed_image_histogram.move(450, 400)
         self.processed_image_histogram.setPixmap(pixmap_scale)
         self.processed_image_histogram.resize(pixmap_scale.width(),
-                                          pixmap_scale.height())
+                                              pixmap_scale.height())
 
         # Label Original Image Space histogram
         self.OG_label_histogram = QLabel(self)
@@ -221,7 +223,6 @@ class App(QMainWindow):
         self.image_size_label.adjustSize()
         self.show()
 
-
     @pyqtSlot()
     def openFileNameDialog(self):
         options = QFileDialog.Options()
@@ -248,7 +249,6 @@ class App(QMainWindow):
                                           str(pixmap.width()) +
                                           ' pixels')
             self.image_size_label.adjustSize()
-
 
     @pyqtSlot()
     def open_choose_location(self):
@@ -283,11 +283,12 @@ class App(QMainWindow):
         pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
         self.processed_image_histogram.setPixmap(pixmap_scale)
         self.processed_image_histogram.resize(pixmap_scale.width(),
-                                          pixmap_scale.height())
+                                              pixmap_scale.height())
 
     @pyqtSlot()
     def on_click_Upload(self):
-        self.time_stamp_label.setText(datetime.datetime.now().strftime("%m-%d-%Y %I:%M%p"))
+        self.time_stamp_label.setText(datetime.datetime.now().strftime(
+            "%m-%d-%Y %I:%M%p"))
         self.time_stamp_label.adjustSize()
 
 

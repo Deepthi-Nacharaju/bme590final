@@ -13,7 +13,6 @@ import colorsys
 from PIL import Image
 
 
-
 def encode_file_as_b64(image_path):
     with open(image_path, "rb") as image_file:
         en64 = base64.b64encode(image_file.read())
@@ -34,6 +33,7 @@ def read_jpg(pic_str):
         pic_data = str(pic_data)
     return pic_data
 
+
 def get_histogram_values(image_name, save_name):
     # (1) Import the file to be analyzed!
     img_file = Image.open(image_name)
@@ -43,9 +43,9 @@ def get_histogram_values(image_name, save_name):
     [xs, ys] = img_file.size
     max_intensity = 100
     hues = {}
-    r_list =[]
+    r_list = []
     g_list = []
-    b_list =[]
+    b_list = []
 
     # (3) Examine each pixel in the image file
     for x in range(0, xs):
@@ -87,8 +87,8 @@ if __name__ == "__main__":
     # post_dict = {'patient_id': 2,
     #              'process_id': 0,
     #              'image_file': p2_image}
-    #r = requests.post(server, json=post_dict)
-    #print(r.json())
+    # r = requests.post(server, json=post_dict)
+    # print(r.json())
     # server = "http://127.0.0.1:5000/data/2"
     # r = requests.get(server)
     # print(r.json())
