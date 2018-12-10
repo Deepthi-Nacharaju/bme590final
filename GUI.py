@@ -9,15 +9,19 @@ import PyQt5.QtCore as QtCore
 from PyQt5.QtCore import *
 import front_end
 import datetime
-
+import requests
+import base64
+import io
+import json
+server = "http://127.0.0.1:5000/"
 
 class App(QMainWindow):
 
     def __init__(self):
         super().__init__()
         self.title = 'Image Processor'
-        self.left = 100
-        self.top = 100
+        self.left = 10
+        self.top = 10
         self.width = 1100
         self.height = 750
         self.initUI()
@@ -35,6 +39,17 @@ class App(QMainWindow):
         self.notes = QTextEdit(self)
         self.notes.move(800, 75)
         self.notes.resize(250, 100)
+
+        # Create Server Status textbox
+        self.server_status = QTextEdit(self)
+        self.server_status.move(800, 300)
+        self.server_status.resize(250, 50)
+
+        # Server Status Label
+        self.notes_label = QLabel(self)
+        self.notes_label.move(800, 275)
+        self.notes_label.setText('Server Status:')
+        self.notes_label.adjustSize()
 
         # Label Processed Image Space
         self.notes_label = QLabel(self)
@@ -183,6 +198,7 @@ class App(QMainWindow):
         self.button_HE = QPushButton('Histogram \n Equalization', self)
         self.button_HE.move(375, 55)
         self.button_HE.resize(110, 60)
+        self.button_HE.clicked.connect(self.on_click_HE)
 
         # Contrast Stretching
         self.button_CS = QPushButton('Contrast \n Stretching', self)
@@ -222,6 +238,11 @@ class App(QMainWindow):
         self.image_size_label.move(135, 300)
         self.image_size_label.adjustSize()
         self.show()
+        try:
+            r = requests.get(server)
+            self.server_status.setText(r.json())
+        except requests.exceptions.RequestException as e:
+            self.server_status.setText('Server Failed to Initialize')
 
     @pyqtSlot()
     def openFileNameDialog(self):
@@ -231,6 +252,7 @@ class App(QMainWindow):
                                                   "Image files (*.jpg *.gif)",
                                                   options=options)
         if fileName:
+            self.fileName = fileName
             pixmap = QPixmap(fileName)
             pixmap_scale = pixmap.scaled(256, 256,
                                          QtCore.Qt.KeepAspectRatio)
@@ -262,6 +284,22 @@ class App(QMainWindow):
             self.textbox_location.setText(fileName)
 
     @pyqtSlot()
+    def open_error(self):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText('Must open an image')
+        msg.setWindowTitle('Error')
+        msg.exec()
+
+    @pyqtSlot()
+    def no_patient_error(self):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText('Must enter a patient ID')
+        msg.setWindowTitle('Error')
+        msg.exec()
+
+    @pyqtSlot()
     def on_click_clear_OG(self):
         pixmap = QPixmap('white.png')
         pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
@@ -290,6 +328,30 @@ class App(QMainWindow):
         self.time_stamp_label.setText(datetime.datetime.now().strftime(
             "%m-%d-%Y %I:%M%p"))
         self.time_stamp_label.adjustSize()
+
+    @pyqtSlot()
+    def on_click_HE(self):
+        server_HE = server + 'new_image'
+        try:
+            send_string = front_end.encode_file_as_b64(self.fileName)
+        except AttributeError:
+            self.open_error()
+            return
+        if self.textbox.text() == "":
+            self.no_patient_error()
+        post_dict = {
+            'patient_id': self.textbox.text(),
+            'process_id': 1,
+            'image_file': send_string,
+        }
+        try:
+            r = requests.post(server, json=post_dict)
+            self.server_status.setText(r.json())
+        except requests.exceptions.RequestException as e:
+            self.server_status.setText('Connection Failure')
+        except json.decoder.JSONDecodeError:
+            self.server_status.setText('Server Returned Nothing')
+
 
 
 if __name__ == '__main__':

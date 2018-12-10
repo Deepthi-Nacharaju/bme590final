@@ -9,6 +9,7 @@ import base64
 import io
 import numpy as np
 # logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
+import matplotlib
 from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
 from skimage import data, io, filters, img_as_float, exposure
@@ -94,9 +95,9 @@ def new_image():
     r = request.get_json()
     patient_id = r['patient_id']
     process_id = r['process_id']
-    image_file = r['image_file']
-    validate_image(image_file)
+    image_file_encoded = r['image_file']
     patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
+    image_file = decode_b64_image(image_file_encoded)
     if process_id is 1:
         processor = 'Histogram Equalization'
         patient.histogram_count += 1
@@ -104,7 +105,7 @@ def new_image():
     elif process_id is 2:
         processor = 'Contrast Switch'
         patient.contrast_count += 1
-        processed_image = contrast_switch(image_file)
+        processed_image = contrast_stretch(image_file)
     elif process_id is 3:
         processor = 'Log Compression'
         patient.log_count += 1
@@ -119,7 +120,7 @@ def new_image():
     else:
         return jsonify('Not a valid ID')
     save_image(patient_id, processor, processed_image)
-    return jsonify('Upload Successful for Patient ID: ' + str(r['patient_id']))
+    return jsonify('Successful Process for Patient ID: ' + str(r['patient_id']))
 
 
 def validate_image(image_file):

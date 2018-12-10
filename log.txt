@@ -1,0 +1,6 @@
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:werkzeug:127.0.0.1 - - [09/Dec/2018 21:05:42] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Dec/2018 21:05:57] "POST / HTTP/1.1" 405 -
+INFO:werkzeug:127.0.0.1 - - [09/Dec/2018 21:07:37] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Dec/2018 21:07:50] "POST / HTTP/1.1" 405 -
+INFO:werkzeug:127.0.0.1 - - [09/Dec/2018 21:07:55] "POST / HTTP/1.1" 405 -
