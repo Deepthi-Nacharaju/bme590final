@@ -221,9 +221,9 @@ def decode_b64_image(base64_string):
 def encode_file_as_b64(image_array):
     image = Image.fromarray(image_array)
     buffer = io2.BytesIO()
-    image.save(buffer, format="JPEG")
+    image.save(buffer, format="PNG")
     image_bytes = buffer.getvalue()
-    image_string = base64.b64encode(image_bytes.decode("utf-8"))
+    image_string = base64.b64encode(image_bytes).decode("utf-8")
     #    with open(image_path, "rb") as image_file:
     #        return base64.b64encode(image_file.read())
     return image_string
