@@ -6,13 +6,14 @@ from pymodm import MongoModel, fields
 import datetime
 import logging
 import base64
-import io
+import io as io2
 import numpy as np
 # logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
 from skimage import data, io, filters, img_as_float, exposure
 from PIL import Image, ImageStat
+
 logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 app = Flask(__name__)
 connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
@@ -26,8 +27,10 @@ class ImageDB(MongoModel):
     log_count = fields.IntegerField()
     reverse_count = fields.IntegerField()
     images = fields.ListField()
+    histogram_values = fields.ListField()
     processor = fields.ListField()
     images_time_stamp = fields.ListField()
+    notes = fields.ListField()
 
 
 @app.route("/", methods=["GET"])
@@ -79,8 +82,10 @@ def get_data(patient_id):
         "log_count": u.log_count,
         "reverse_count": u.reverse_count,
         "images": u.images,
+        "histogram_values": u.histogram_values,
         "processor": u.processor,
         "images_time_stamp": u.images_time_stamp,
+        "notes": u.notes
     }
     return jsonify(dict_array)
 
@@ -119,6 +124,10 @@ def new_image():
 
 
 def validate_image(image_file):
+    try:
+        image_file.decode()
+    except AttributeError:
+        print('Image file is not a "bytes" class.')
     return
 
 
@@ -146,7 +155,6 @@ def save_image(patient_id, processor, image_file):
 
 
 def decode_b64_image(base64_string):
-
     """
     :param base64_string:
     :return reconstructed_image: PIL image
@@ -156,22 +164,22 @@ def decode_b64_image(base64_string):
     temp.write(base64.b64decode(base64_string))
     temp.close()
     reconstructed_image = im.imread("temporary.png")
-#    image_bytes = base64.b64decode(base64_string)
-#    image_buf = io.BytesIO(image_bytes)
-#    i = mpimg.imread(image_buf, format='JPG')
-#    plt.imshow(i, interpolation='nearest')
-#    plt.show()
+    #    image_bytes = base64.b64decode(base64_string)
+    #    image_buf = io.BytesIO(image_bytes)
+    #    i = mpimg.imread(image_buf, format='JPG')
+    #    plt.imshow(i, interpolation='nearest')
+    #    plt.show()
     return reconstructed_image
 
 
 def encode_file_as_b64(image_array):
     image = Image.fromarray(image_array)
-    buffer = io.BytesIO()
+    buffer = io2.BytesIO()
     image.save(buffer, format="JPEG")
     image_bytes = buffer.getvalue()
     image_string = base64.b64encode(image_bytes.decode("utf-8"))
-#    with open(image_path, "rb") as image_file:
-#        return base64.b64encode(image_file.read())
+    #    with open(image_path, "rb") as image_file:
+    #        return base64.b64encode(image_file.read())
     return image_string
 
 
@@ -194,7 +202,7 @@ def make_gray(base64_string):
 
 def histogram_equalization(pil_image):
     equalized = exposure.equalize_hist(pil_image.astype('uint8'))
-    normalized = 255*equalized
+    normalized = 255 * equalized
     processed_image = normalized.astype('uint8')
     return processed_image
 
@@ -218,14 +226,70 @@ def log_compression(pil_image):
 
 
 def reverse_video(pil_image):
-
     processed_image = 1
     return processed_image
+
+
+Image_Formats = [
+    "JPEG",
+    "PNG",
+    "TIFF"
+]
+
+
+class ValidationError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+def validate_file_format(requested_format):
+    if requested_format not in Image_Formats:
+        raise ValidationError("File format '{0}' not supported"
+                              .format(requested_format))
+
+
+def save_as_format(pil_image, file_format, filename):
+    """
+    This function handles a Pillow image object and converts it to
+    a user-specified file format with a user-specified filename and
+    saves it as '<filename>.<format>'. The function will return a
+    ValidationError if the requested file_format is not supported,
+    and use "JPEG" as default.
+
+    :param pil_image: PILLOW image object
+    :param file_format: string
+    :param filename: string, pathlib.Path object or file object
+    :raises: ValidationError - If the requested format is not JPEG, PNG, TIFF
+             ValueError -  If the output format could not be determined from
+              the file name.
+             IOError – If the file could not be written. The file may have been
+             created, and may contain partial data.
+    """
+    try:
+        validate_file_format(file_format)
+    except ValidationError as inst:
+        print(inst.message)
+        file_format = "JPEG"
+    try:
+        check_filename(filename)
+    except ValueError:
+        print("Incorrect filename")
+    pil_image.save(filename, file_format)
+    return
+
+
+def check_filename(filename):
+    return True
 
 
 if __name__ == "__main__":
     connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
     # app.run(host="127.0.0.1")
     app.run(host="0.0.0.0")
-    encoded = encode_file_as_b64('Dogs.jpg')
-    print(type(encoded))
+    dogsJpg = Image.open("Dogs.jpg", mode='r')
+    # dogsJpg = np.asarray(Image.open("Dogs.jpg", mode='r'))
+    # opens PIL image as a ndarray
+    encoded = encode_file_as_b64(dogsJpg)   # induces UnicodeDecodeError
+    # im = PIL.Image.fromarray(numpy.uint8(I))
+    # converts ndarray to Pillow image
+    save_as_format(dogsJpg, "BMP", 'Doggo')
