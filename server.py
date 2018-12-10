@@ -20,6 +20,29 @@ connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
 
 
 class ImageDB(MongoModel):
+    """This class initializes the stored data fields for the image processor
+    MongoDB database.
+
+    Attributes:
+        patient_id (str): unique patient mrn.
+        actions (list): specifies a list of image processor actions.
+        :histogram_count (int): number of times histogram
+            equalization was conducted.
+        contrast_count (int): number of times contrast stretching
+            was conducted.
+        log_count (int): number of times log compression
+            was conducted.
+        reverse_count (int): number of times reverse video
+            was conducted.
+        images (list): list of original image and processed images.
+        histogram_values (list): number of pixels associated with a
+            particular brightness value.
+        processor (list): list of completed processor actions.
+        images_time_stamp (list): list of timestamps of completed
+            processor actions.
+        notes (list): extraneous notes provided by user.
+
+    """
     patient_id = fields.CharField(primary_key=True)
     actions = fields.ListField()
     histogram_count = fields.IntegerField()
@@ -37,11 +60,12 @@ class ImageDB(MongoModel):
 def greeting():
     """ Welcomes user to image processor
 
-    This function returns the following string: "Welcome to the image
-    processor"
+    This function returns "Welcome to the image processor"
+    and confirms connection with the web server.
 
     Returns:
-        welcome (string): "Welcome to the image processor"
+        welcome (str): "Welcome to the image processor"
+
     """
 
     welcome = "Welcome to the image processor!"
@@ -50,6 +74,13 @@ def greeting():
 
 @app.route("/new_patient", methods=["POST"])
 def add_new_patient():
+    """ Adds new patient to image processor
+
+    Returns:
+        new_patient (str): confirmation of new patient's
+            initialization
+
+    """
     r = request.get_json()
     patient = ImageDB(int(r['patient_id']),
                       histogram_count=0,
@@ -57,20 +88,21 @@ def add_new_patient():
                       log_count=0,
                       reverse_count=0)
     patient.save()
-    return jsonify('New Patient Initialized with ID: ' + str(r['patient_id']))
+    new_patient = 'New Patient Initialized with ID: ' + str(r['patient_id'])
+    return jsonify(new_patient)
 
 
 @app.route("/data/<patient_id>", methods=["GET"])
 def get_data(patient_id):
-    """
-    This function returns all the stored information for a patient
+    """Returns all the stored information for a patient
     as a JSON dictionary
 
     Args:
-        patient_id (string): string specifying image name.
+        patient_id (str): string specifying patient id.
 
     Returns:
-        dict_array (dict): stored information for specified image
+         dict_array (dict): dictionary of all stored data
+
     """
     u = ImageDB.objects.raw({"_id": int(patient_id)}).first()
     dict_array = {
@@ -92,6 +124,19 @@ def get_data(patient_id):
 
 @app.route("/new_image", methods=["POST"])
 def new_image():
+    """This function receives a JSON request with
+     an image and applies the specified image
+     processing algorithm.
+
+    Args:
+        patient_id (str): specifies patient id.
+        process_id (str): specifies type of algorithm
+        image_file (str): image as b64 string
+
+    Returns:
+         confirmation (str): upload confirmation of image
+
+    """
     r = request.get_json()
     patient_id = r['patient_id']
     process_id = r['process_id']
@@ -120,7 +165,8 @@ def new_image():
     else:
         return jsonify('Not a valid ID')
     save_image(patient_id, processor, processed_image)
-    return jsonify('Upload Successful for Patient ID: ' + str(r['patient_id']))
+    confirmation = 'Upload Successful for Patient ID: ' + str(r['patient_id'])
+    return jsonify(confirmation)
 
 
 def validate_image(image_file):
@@ -226,6 +272,15 @@ def log_compression(pil_image):
 
 
 def reverse_video(pil_image):
+    """This function reverses the colors in an image
+
+    Args:
+        pil_image (array): PIL image object
+
+    Returns:
+        processed_image (str): PIL image object
+
+    """
     for pixel in np.nditer(pil_image, op_flags=['readwrite']):
         pixel[...] = 255 - pixel
     processed_image = pil_image.astype('uint8')
@@ -258,13 +313,15 @@ def save_as_format(pil_image, file_format, filename):
     ValidationError if the requested file_format is not supported,
     and use "JPEG" as default.
 
-    :param pil_image: PILLOW image object
-    :param file_format: string
-    :param filename: string, pathlib.Path object or file object
-    :raises: ValidationError - If the requested format is not JPEG, PNG, TIFF
-             ValueError -  If the output format could not be determined from
+    Args:
+        pil_image (array): uint-8 image array
+        file_format: string
+        filename: string, pathlib.Path object or file object
+    Raises:
+        ValidationError: If the requested format is not JPEG, PNG, TIFF
+        ValueError: If the output format could not be determined from
               the file name.
-             IOError – If the file could not be written. The file may have been
+        IOError – If the file could not be written. The file may have been
              created, and may contain partial data.
     """
     try:
