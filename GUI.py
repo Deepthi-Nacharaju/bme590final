@@ -341,15 +341,22 @@ class App(QMainWindow):
         if self.textbox.text() == "":
             self.no_patient_error()
         post_dict = {
-            'patient_id': self.textbox.text(),
+            'patient_id': str(self.textbox.text()),
             'process_id': 1,
             'image_file': send_string,
         }
         try:
-            r = requests.post(server, json=post_dict)
-            self.server_status.setText(r.json())
+            r = requests.post(server_HE, json=post_dict)
         except requests.exceptions.RequestException as e:
             self.server_status.setText('Connection Failure')
+        try:
+            save_name = 'decode.jpg'
+            front_end.decode_b64_image(r.json(), save_name)
+            pixmap = QPixmap(save_name)
+            pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+            self.processed_image_histogram_image_histogram.setPixmap(pixmap_scale)
+            self.processed_image_histogram_image_histogram.resize(pixmap_scale.width(),
+                                                                  pixmap_scale.height())
         except json.decoder.JSONDecodeError:
             self.server_status.setText('Server Returned Nothing')
 

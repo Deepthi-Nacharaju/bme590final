@@ -6,14 +6,16 @@ from pymodm import MongoModel, fields
 import datetime
 import logging
 import base64
-import io
+import io as io2
 import numpy as np
+from skimage import io as im
 # logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 import matplotlib
 from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
 from skimage import data, io, filters, img_as_float, exposure
 from PIL import Image, ImageStat
+import server
 #logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 app = Flask(__name__)
 connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
@@ -96,9 +98,17 @@ def new_image():
     patient_id = r['patient_id']
     process_id = r['process_id']
     image_file_encoded = r['image_file']
-    print(image_file_encoded)
-    patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
+    try:
+        patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
+    except ImageDB.DoesNotExist:
+        patient = ImageDB(int(r['patient_id']),
+                          histogram_count=0,
+                          contrast_count=0,
+                          log_count=0,
+                          reverse_count=0)
+        patient.save()
     image_file = decode_b64_image(image_file_encoded)
+
     if process_id is 1:
         processor = 'Histogram Equalization'
         patient.histogram_count += 1
@@ -120,8 +130,9 @@ def new_image():
         processed_image = image_file
     else:
         return jsonify('Not a valid ID')
-    save_image(patient_id, processor, processed_image)
-    return jsonify('Successful Process for Patient ID: ' + str(r['patient_id']))
+    # save_image(patient_id, processor, processed_image)
+    out = encode_file_as_b64(processed_image)
+    return jsonify(out)
 
 
 def validate_image(image_file):
@@ -156,7 +167,6 @@ def decode_b64_image(base64_string):
     :param base64_string:
     :return reconstructed_image: PIL image
     """
-    from skimage import io as im
     temp = open("temporary.png", "wb")
     temp.write(base64.b64decode(base64_string))
     temp.close()
@@ -171,7 +181,7 @@ def decode_b64_image(base64_string):
 
 def encode_file_as_b64(image_array):
     image = Image.fromarray(image_array)
-    buffer = io.BytesIO()
+    buffer = io2.BytesIO()
     image.save(buffer, format="JPEG")
     image_bytes = buffer.getvalue()
     image_string = base64.b64encode(image_bytes.decode("utf-8"))
