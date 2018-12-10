@@ -283,7 +283,7 @@ if __name__ == "__main__":
     dogsJpg = Image.open("Dogs.jpg", mode='r')
     # dogsJpg = np.asarray(Image.open("Dogs.jpg", mode='r'))
     # opens PIL image as a ndarray
-    encoded = encode_file_as_b64(dogsJpg) # induces UnicodeDecodeError
+    encoded = encode_file_as_b64(dogsJpg)   # induces UnicodeDecodeError
     # im = PIL.Image.fromarray(numpy.uint8(I))
     # converts ndarray to Pillow image
     save_as_format(dogsJpg, "BMP", 'Doggo')
