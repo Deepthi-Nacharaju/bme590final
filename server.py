@@ -197,7 +197,7 @@ def make_gray(base64_string):
     gray_scale = image.convert('LA')
     gray_scale.save('gray.png')
     gray_image = im.imread("gray.png")
-    return gray_image
+    return gray_image.astype('uint8')
 
 
 def histogram_equalization(pil_image):
@@ -211,11 +211,17 @@ def contrast_stretch(pil_image):
     p2 = np.percentile(pil_image, 2)
     p98 = np.percentile(pil_image, 98)
     rescaled_image = exposure.rescale_intensity(pil_image, in_range=(p2, p98))
-    return rescaled_image
+    processed_image = rescaled_image
+    return processed_image
 
 
 def log_compression(pil_image):
-    processed_image = 1
+    # Adapted from:
+    # https://homepages.inf.ed.ac.uk/rbf/HIPR2/pixlog.htm
+    c = 255/(np.log10(1+np.amax(pil_image)))
+    for pixel in np.nditer(pil_image, op_flags=['readwrite']):
+        pixel[...] = c * np.log10(1+pixel)
+    processed_image = pil_image.astype('uint8')
     return processed_image
 
 
