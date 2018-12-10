@@ -123,6 +123,10 @@ def new_image():
 
 
 def validate_image(image_file):
+    try:
+        image_file.decode()
+    except AttributeError:
+        print('Image file is not a "bytes" class.')
     return
 
 
