@@ -56,6 +56,7 @@ def decode_b64_image(base64_string, save_name):
 # #        return base64.b64encode(image_file.read())
 #     return image_string
 
+
 def read_jpg(pic_str):
     with open(pic_str, 'rb') as pic:
         pic_data = pic.read()

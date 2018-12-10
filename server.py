@@ -16,7 +16,7 @@ import matplotlib.image as mpimg
 from skimage import data, io, filters, img_as_float, exposure
 from PIL import Image, ImageStat
 import server
-#logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
+# logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 app = Flask(__name__)
 connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
 
@@ -188,14 +188,14 @@ def encode_file_as_b64(image_array):
     i = mpimg.imread(image_buf, format='JPG')
     # plt.imshow(i, interpolation='nearest')
     plt.savefig('temporary.jpg')
-    #image_string = base64.b64encode(image_bytes.decode("utf-8"))
+    # image_string = base64.b64encode(image_bytes.decode("utf-8"))
     with open('temporary.jpg', "rb") as image_file:
         en64 = base64.b64encode(image_file.read())
         en64 = en64.decode("utf-8")
         return en64
 #    with open(image_path, "rb") as image_file:
 #        return base64.b64encode(image_file.read())
-    #return image_string
+    # return image_string
 
 
 def make_gray(base64_string):

@@ -18,6 +18,7 @@ from matplotlib import pyplot as plt
 
 server = "http://127.0.0.1:5000/"
 
+
 class App(QMainWindow):
 
     def __init__(self):
@@ -367,7 +368,8 @@ class App(QMainWindow):
             self.label_image_processed.setPixmap(pixmap_scale)
             self.label_image_processed.resize(pixmap_scale.width(),
                                               pixmap_scale.height())
-            # front_end.get_histogram_values(save_name, 'processed_histogram.jpg')
+            # front_end.get_histogram_values(save_name,
+            # 'processed_histogram.jpg')
             # pixmap = QPixmap('processed_histogram.jpg')
             # pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
             # self.processed_image_histogram.setPixmap(pixmap_scale)
