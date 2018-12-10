@@ -18,7 +18,7 @@ def decode_b64_image(base64_string):
     return i  # This is an image object in Pillow in <JpegImageFile>
 
 
-def PIL_to_mode(PIL_image, mode):  # returns a converted copy of an image to desired mode
+def PIL_to_mode(PIL_image, mode):  # converts image to "L" or "RGB"
     out = PIL_image.convert(mode=mode)
     # plt.imshow(out, interpolation='nearest')
     # plt.show()
@@ -74,12 +74,14 @@ def normalizeBlue(intensity):
 
 def contrast_stretch(image_obj):
     # if is_threeband(image_obj) == False:
-    if is_threeband(image_obj) == True:  # if image is RGB
-        multiBands = image_obj.split()  # split the R, G, B bands from the image
+    if is_threeband(image_obj):  # if image is RGB
+        multiBands = image_obj.split()  # split R, G, B bands from the image
         normalizedR = multiBands[0].point(normalizeRed)
         normalizedG = multiBands[1].point(normalizeGreen)
         normalizedB = multiBands[2].point(normalizeBlue)
-        normalized_image = Image.merge("RGB", (normalizedR, normalizedG, normalizedB))
+        normalized_image = Image.merge("RGB", (normalizedR,
+                                               normalizedG,
+                                               normalizedB))
         normalized_image.show()
         print(type(normalized_image))
         return normalized_image
