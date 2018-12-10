@@ -226,7 +226,9 @@ def log_compression(pil_image):
 
 
 def reverse_video(pil_image):
-    processed_image = 1
+    for pixel in np.nditer(pil_image, op_flags=['readwrite']):
+        pixel[...] = 255 - pixel
+    processed_image = pil_image.astype('uint8')
     return processed_image
 
 
