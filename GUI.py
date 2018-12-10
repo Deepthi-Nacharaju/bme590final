@@ -13,6 +13,9 @@ import requests
 import base64
 import io
 import json
+import matplotlib.image as mpimg
+from matplotlib import pyplot as plt
+
 server = "http://127.0.0.1:5000/"
 
 class App(QMainWindow):
@@ -267,9 +270,9 @@ class App(QMainWindow):
             self.OG_image_histogram.resize(pixmap_scale.width(),
                                            pixmap_scale.height())
             self.image_size_label.setText('Image Size: ' +
-                                          str(pixmap.height()) +
-                                          'x' +
                                           str(pixmap.width()) +
+                                          'x' +
+                                          str(pixmap.height()) +
                                           ' pixels')
             self.image_size_label.adjustSize()
 
@@ -350,13 +353,27 @@ class App(QMainWindow):
         except requests.exceptions.RequestException as e:
             self.server_status.setText('Connection Failure')
         try:
-            save_name = 'decode.jpg'
-            front_end.decode_b64_image(r.json(), save_name)
-            pixmap = QPixmap(save_name)
-            pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
-            self.processed_image_histogram_image_histogram.setPixmap(pixmap_scale)
-            self.processed_image_histogram_image_histogram.resize(pixmap_scale.width(),
-                                                                  pixmap_scale.height())
+            p_image = 'decode.jpg'
+            # front_end.decode_b64_image(r.json(), p_image)
+            image_bytes = base64.b64decode(r.json())
+            image_buf = io.BytesIO(image_bytes)
+            i = mpimg.imread(image_buf, format='JPG')
+            plt.imshow(i, interpolation='nearest')
+            plt.show()
+            plt.savefig('save_as_jpg.jpg')
+            pixmap = QPixmap('save_as_jpg.jpg')
+            pixmap_scale = pixmap.scaled(256, 256,
+                                         QtCore.Qt.KeepAspectRatio)
+            self.label_image_processed.setPixmap(pixmap_scale)
+            self.label_image_processed.resize(pixmap_scale.width(),
+                                              pixmap_scale.height())
+            # front_end.get_histogram_values(save_name, 'processed_histogram.jpg')
+            # pixmap = QPixmap('processed_histogram.jpg')
+            # pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+            # self.processed_image_histogram.setPixmap(pixmap_scale)
+            # self.processed_image_histogram.resize(pixmap_scale.width(),
+            #                                       pixmap_scale.height())
+
         except json.decoder.JSONDecodeError:
             self.server_status.setText('Server Returned Nothing')
 

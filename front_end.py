@@ -26,6 +26,7 @@ def decode_b64_image(base64_string, save_name):
     i = mpimg.imread(image_buf, format='JPG')
     plt.imshow(i, interpolation='nearest')
     plt.savefig(save_name)
+    return
 
 # def decode_b64_image(base64_string):
 #     """

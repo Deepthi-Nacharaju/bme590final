@@ -184,10 +184,18 @@ def encode_file_as_b64(image_array):
     buffer = io2.BytesIO()
     image.save(buffer, format="JPEG")
     image_bytes = buffer.getvalue()
-    image_string = base64.b64encode(image_bytes.decode("utf-8"))
+    image_buf = io2.BytesIO(image_bytes)
+    i = mpimg.imread(image_buf, format='JPG')
+    # plt.imshow(i, interpolation='nearest')
+    plt.savefig('temporary.jpg')
+    #image_string = base64.b64encode(image_bytes.decode("utf-8"))
+    with open('temporary.jpg', "rb") as image_file:
+        en64 = base64.b64encode(image_file.read())
+        en64 = en64.decode("utf-8")
+        return en64
 #    with open(image_path, "rb") as image_file:
 #        return base64.b64encode(image_file.read())
-    return image_string
+    #return image_string
 
 
 def make_gray(base64_string):
