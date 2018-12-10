@@ -26,8 +26,10 @@ class ImageDB(MongoModel):
     log_count = fields.IntegerField()
     reverse_count = fields.IntegerField()
     images = fields.ListField()
+    histogram_values = fields.ListField()
     processor = fields.ListField()
     images_time_stamp = fields.ListField()
+    notes = fields.ListField()
 
 
 @app.route("/", methods=["GET"])
@@ -79,8 +81,10 @@ def get_data(patient_id):
         "log_count": u.log_count,
         "reverse_count": u.reverse_count,
         "images": u.images,
+        "histogram_values": u.histogram_values,
         "processor": u.processor,
         "images_time_stamp": u.images_time_stamp,
+        "notes": u.notes
     }
     return jsonify(dict_array)
 
@@ -146,7 +150,6 @@ def save_image(patient_id, processor, image_file):
 
 
 def decode_b64_image(base64_string):
-
     """
     :param base64_string:
     :return reconstructed_image: PIL image
