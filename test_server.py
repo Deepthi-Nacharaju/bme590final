@@ -17,8 +17,8 @@ def test_validate_image():
 #    assert image_bytes == image_bytes2
 
 
-def test_encode_file_as_b64():
-    encoded = encode_file_as_b64('Dogs.jpg')
-    with open('Dogs.jpg', "rb") as image_file:
-        encoded2 = base64.b64encode(image_file.read())
-    assert encoded == encoded2
+# def test_encode_file_as_b64():
+#    encoded = encode_file_as_b64('Dogs.jpg')
+#    with open('Dogs.jpg', "rb") as image_file:
+#        encoded2 = base64.b64encode(image_file.read())
+#    assert encoded == encoded2
