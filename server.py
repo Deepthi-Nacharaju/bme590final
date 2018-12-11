@@ -176,10 +176,11 @@ def new_image():
         processed_image = image_file
     else:
         return jsonify('Not a valid ID')
-      
+
     # save_image(patient_id, processor, processed_image)
     out = encode_file_as_b64(processed_image)
     return jsonify(out)
+
 
 def validate_image(image_file):
     try:
