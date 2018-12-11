@@ -291,7 +291,7 @@ def reverse_video(pil_image):
         pil_image (array): PIL image object
 
     Returns:
-        processed_image (str): PIL image object
+        processed_image (array): PIL image object
 
     """
     for pixel in np.nditer(pil_image, op_flags=['readwrite']):
@@ -356,8 +356,8 @@ def check_filename(filename):
 
 if __name__ == "__main__":
     connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
-    # app.run(host="127.0.0.1")
-    app.run(host="0.0.0.0")
+    app.run(host="127.0.0.1")
+    # app.run(host="0.0.0.0")
     dogsJpg = Image.open("Dogs.jpg", mode='r')
     # dogsJpg = np.asarray(Image.open("Dogs.jpg", mode='r'))
     # opens PIL image as a ndarray
