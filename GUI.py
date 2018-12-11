@@ -18,6 +18,7 @@ import matplotlib.image as mpimg
 from matplotlib import pyplot as plt
 import os
 from PIL import Image
+
 server = "http://127.0.0.1:5000/"
 
 
@@ -319,11 +320,10 @@ class App(QMainWindow):
         fileName, _ = QFileDialog.getSaveFileName(self,
                                                   "Save JPEG",
                                                   os.getcwd(),
-                                                  "Image files (*.jpg *.png)")
+                                                  "Image files (*.jpg)")
         if fileName:
             save_image = Image.open('save_as_jpg.jpg')
             save_image.save(fileName, 'JPEG')
-
 
     @pyqtSlot()
     def on_click_PNG(self):
@@ -337,7 +337,7 @@ class App(QMainWindow):
         fileName, _ = QFileDialog.getSaveFileName(self,
                                                   "Save PNG",
                                                   os.getcwd(),
-                                                  "Image files (*.jpg *.png)")
+                                                  "Image files (*.png)")
         if fileName:
             save_image = Image.open('save_as_jpg.jpg')
             save_image.save(fileName, 'PNG')
@@ -351,6 +351,13 @@ class App(QMainWindow):
             msg.setWindowTitle('Error')
             msg.exec()
             return
+        fileName, _ = QFileDialog.getSaveFileName(self,
+                                                  "Save TIFF",
+                                                  os.getcwd(),
+                                                  "Image files (*.tif)")
+        if fileName:
+            save_image = Image.open('save_as_jpg.jpg')
+            save_image.save(fileName, save_all=True)
 
     @pyqtSlot()
     def on_click_HE(self):
@@ -389,7 +396,7 @@ class App(QMainWindow):
             plt.imshow(i, interpolation='nearest')
             plt.axis('off')
 
-            plt.savefig('save_as_jpg.jpg',bbox_inches='tight', pad_inches=0)
+            plt.savefig('save_as_jpg.jpg', bbox_inches='tight', pad_inches=0)
             pixmap = QPixmap('save_as_jpg.jpg')
             pixmap_scale = pixmap.scaled(256, 256,
                                          QtCore.Qt.KeepAspectRatio)
@@ -397,7 +404,7 @@ class App(QMainWindow):
             self.label_image_processed.resize(pixmap_scale.width(),
                                               pixmap_scale.height())
             front_end.get_histogram_values('save_as_jpg.jpg',
-            'processed_histogram.jpg')
+                                           'processed_histogram.jpg')
             pixmap = QPixmap('processed_histogram.jpg')
             pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
             self.processed_image_histogram.setPixmap(pixmap_scale)
@@ -408,7 +415,7 @@ class App(QMainWindow):
                 "%m-%d-%Y %I:%M%p"))
             self.time_stamp_label.adjustSize()
             two_time = datetime.datetime.now()
-            time_delta = two_time-one_time
+            time_delta = two_time - one_time
             self.process_time.setText(str(time_delta))
             self.process_time.adjustSize()
             self.process_state = 1
@@ -471,7 +478,7 @@ class App(QMainWindow):
                 "%m-%d-%Y %I:%M%p"))
             self.time_stamp_label.adjustSize()
             two_time = datetime.datetime.now()
-            time_delta = two_time-one_time
+            time_delta = two_time - one_time
             self.process_time.setText(str(time_delta))
             self.process_time.adjustSize()
             self.process_state = 1
@@ -534,7 +541,7 @@ class App(QMainWindow):
                 "%m-%d-%Y %I:%M%p"))
             self.time_stamp_label.adjustSize()
             two_time = datetime.datetime.now()
-            time_delta = two_time-one_time
+            time_delta = two_time - one_time
             self.process_time.setText(str(time_delta))
             self.process_time.adjustSize()
             self.process_state = 1
@@ -597,7 +604,7 @@ class App(QMainWindow):
                 "%m-%d-%Y %I:%M%p"))
             self.time_stamp_label.adjustSize()
             two_time = datetime.datetime.now()
-            time_delta = two_time-one_time
+            time_delta = two_time - one_time
             self.process_time.setText(str(time_delta))
             self.process_time.adjustSize()
             self.process_state = 1

@@ -16,6 +16,7 @@ import matplotlib.image as mpimg
 from skimage import data, io, filters, img_as_float, exposure
 from PIL import Image, ImageStat
 import server
+
 # logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 
 app = Flask(__name__)
@@ -233,7 +234,7 @@ def decode_b64_image(base64_string):
 def encode_file_as_b64(image_array):
     image = Image.fromarray(image_array)
     buffer = io2.BytesIO()
-    image.save(buffer, format="JPEG")
+    image.save(buffer, format="PNG")
     image_bytes = buffer.getvalue()
     image_string = base64.b64encode(image_bytes).decode("utf-8")
     #    with open(image_path, "rb") as image_file:
@@ -276,9 +277,9 @@ def contrast_stretch(pil_image):
 def log_compression(pil_image):
     # Adapted from:
     # https://homepages.inf.ed.ac.uk/rbf/HIPR2/pixlog.htm
-    c = 255/(np.log10(1+np.amax(pil_image)))
+    c = 255 / (np.log10(1 + np.amax(pil_image)))
     for pixel in np.nditer(pil_image, op_flags=['readwrite']):
-        pixel[...] = c * np.log10(1+pixel)
+        pixel[...] = c * np.log10(1 + pixel)
     processed_image = pil_image.astype('uint8')
     return processed_image
 
@@ -360,7 +361,7 @@ if __name__ == "__main__":
     dogsJpg = Image.open("Dogs.jpg", mode='r')
     # dogsJpg = np.asarray(Image.open("Dogs.jpg", mode='r'))
     # opens PIL image as a ndarray
-    encoded = encode_file_as_b64(dogsJpg)   # induces UnicodeDecodeError
+    encoded = encode_file_as_b64(dogsJpg)  # induces UnicodeDecodeError
     # im = PIL.Image.fromarray(numpy.uint8(I))
     # converts ndarray to Pillow image
     save_as_format(dogsJpg, "BMP", 'Doggo')
