@@ -236,7 +236,7 @@ def log_compression(pil_image):
 
 def reverse_video(pil_image):
 
-    processed_image = 1
+    processed_image = 2
     return processed_image
 
 
