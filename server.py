@@ -242,21 +242,12 @@ def encode_file_as_b64(image_array):
     return image_string
 
 
-def make_gray(base64_string):
-    """
-
-    :param base64_string:
-    :return gray_image: PIL image
-    """
-    from skimage import io as im
-    img = open("gray.png", "wb")
-    img.write(base64.b64decode(base64_string))
-    img.close()
-    image = Image.open("gray.png")
+def make_gray(pil_image):
+    image = Image.fromarray(pil_image)
     gray_scale = image.convert('LA')
-    gray_scale.save('gray.png')
-    gray_image = im.imread("gray.png")
-    return gray_image.astype('uint8')
+    gray = np.array(gray_scale)
+    processed_image = gray
+    return processed_image
 
 
 def histogram_equalization(pil_image):
