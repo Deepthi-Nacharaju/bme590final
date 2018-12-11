@@ -9,6 +9,17 @@ import PyQt5.QtCore as QtCore
 from PyQt5.QtCore import *
 import front_end
 import datetime
+from datetime import timedelta
+import requests
+import base64
+import io
+import json
+import matplotlib.image as mpimg
+from matplotlib import pyplot as plt
+import os
+from PIL import Image
+
+server = "http://127.0.0.1:5000/"
 
 
 class App(QMainWindow):
@@ -16,8 +27,8 @@ class App(QMainWindow):
     def __init__(self):
         super().__init__()
         self.title = 'Image Processor'
-        self.left = 100
-        self.top = 100
+        self.left = 10
+        self.top = 10
         self.width = 1100
         self.height = 750
         self.initUI()
@@ -36,23 +47,27 @@ class App(QMainWindow):
         self.notes.move(800, 75)
         self.notes.resize(250, 100)
 
+        # Create Server Status textbox
+        self.server_status = QTextEdit(self)
+        self.server_status.move(800, 300)
+        self.server_status.resize(250, 50)
+
+        # Server Status Label
+        self.notes_label = QLabel(self)
+        self.notes_label.move(800, 275)
+        self.notes_label.setText('Server Status:')
+        self.notes_label.adjustSize()
+
         # Label Processed Image Space
         self.notes_label = QLabel(self)
         self.notes_label.move(800, 50)
-        self.notes_label.setText('Notes:')
+        self.notes_label.setText('Upload with Notes:')
         self.notes_label.adjustSize()
 
         # Create Label for Patient_ID Box
         self.label = QLabel(self)
         self.label.setText('Patient ID:')
         self.label.move(10, 15)
-
-        # Create Upload button in the window
-        self.button = QPushButton('Upload', self)
-        self.button.move(950, 700)
-        # Connect Upload button to time stamp update
-        self.button.clicked.connect(self.on_click_Upload)
-        self.button.setEnabled(False)
 
         # Create Open button to open image file
         self.button_open = QPushButton('Open', self)
@@ -76,42 +91,26 @@ class App(QMainWindow):
         # Create save button for processed image file JPEG
         self.button_JPEG = QPushButton('JPEG', self)
         self.button_JPEG.move(505, 270)
+        self.button_JPEG.clicked.connect(self.on_click_JPEG)
 
         # Create save button for processed image file PNG
         self.button_PNG = QPushButton('PNG', self)
         self.button_PNG.move(505, 295)
+        self.button_PNG.clicked.connect(self.on_click_PNG)
 
         # Create save button for processed image file TIFF
         self.button_TIFF = QPushButton('TIFF', self)
         self.button_TIFF.move(505, 320)
+        self.button_TIFF.clicked.connect(self.on_click_TIFF)
 
         # Create Label for 'Save As:'
         self.label_save_as = QLabel(self)
         self.label_save_as.setText('Save As:')
         self.label_save_as.move(530, 250)
 
-        # Create Label for 'To Location:'
-        self.label_to_location = QLabel(self)
-        self.label_to_location.setText('To Location:')
-        self.label_to_location.move(610, 292)
-
-        # Create Location Line Edit
-        self.textbox_location = QLineEdit(self)
-        self.textbox_location.move(610, 320)
-        self.textbox_location.resize(130, 20)
-
         # Open File dialogue to find save path
         # connect button to function on_click
         self.button_open.clicked.connect(self.openFileNameDialog)
-
-        # Create save button for processed image file TIFF
-        self.button_choose_location = QPushButton('Choose', self)
-        self.button_choose_location.move(680, 292)
-        self.button_choose_location.resize(75, 25)
-
-        # Open File dialog
-        # connect button to function on_click
-        self.button_choose_location.clicked.connect(self.open_choose_location)
 
         # Label Original Image Space
         self.OG_label = QLabel(self)
@@ -148,6 +147,10 @@ class App(QMainWindow):
         self.label_image_processed.setPixmap(pixmap_scale)
         self.label_image_processed.resize(pixmap_scale.width(),
                                           pixmap_scale.height())
+
+        # Create Process State Variable
+        self.process_state = 0
+
         # Original Image Histogram
         self.OG_image_histogram = QLabel(self)
         self.OG_image_histogram.setMaximumWidth(400)
@@ -183,22 +186,23 @@ class App(QMainWindow):
         self.button_HE = QPushButton('Histogram \n Equalization', self)
         self.button_HE.move(375, 55)
         self.button_HE.resize(110, 60)
+        self.button_HE.clicked.connect(self.on_click_HE)
 
         # Contrast Stretching
         self.button_CS = QPushButton('Contrast \n Stretching', self)
         self.button_CS.move(375, 105)
         self.button_CS.resize(110, 60)
-
+        self.button_CS.clicked.connect(self.on_click_CS)
         # Log Compression
-        self.button_LG = QPushButton('Log \n Compression', self)
-        self.button_LG.move(375, 155)
-        self.button_LG.resize(110, 60)
-
+        self.button_LC = QPushButton('Log \n Compression', self)
+        self.button_LC.move(375, 155)
+        self.button_LC.resize(110, 60)
+        self.button_LC.clicked.connect(self.on_click_LC)
         # Reverse Video
         self.button_RV = QPushButton('Reverse \n Video', self)
         self.button_RV.move(375, 205)
         self.button_RV.resize(110, 60)
-
+        self.button_RV.clicked.connect(self.on_click_RV)
         # TimeStamp Label Name
         self.time_stamp_name = QLabel(self)
         self.time_stamp_name.setText('Last Upload Time Stamp:')
@@ -216,21 +220,34 @@ class App(QMainWindow):
         self.process_time_image.move(800, 215)
         self.process_time_image.adjustSize()
 
+        # Time Label
+        self.process_time = QLabel(self)
+        self.process_time.move(800, 235)
+        self.process_time.adjustSize()
+
         # Image Size in Pixels
         self.image_size_label = QLabel(self)
         self.image_size_label.setText('Image Size:')
         self.image_size_label.move(135, 300)
         self.image_size_label.adjustSize()
+        self.fileName = ''
         self.show()
+        try:
+            r = requests.get(server)
+            self.server_status.setText(r.json())
+        except requests.exceptions.RequestException as e:
+            self.server_status.setText('Server Failed to Initialize')
 
     @pyqtSlot()
     def openFileNameDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self, "Open Image", 'c:\\',
-                                                  "Image files (*.jpg *.gif)",
+        current = os.getcwd()
+        fileName, _ = QFileDialog.getOpenFileName(self, "Open Image", current,
+                                                  "Image files (*.jpg *.png)",
                                                   options=options)
         if fileName:
+            self.fileName = fileName
             pixmap = QPixmap(fileName)
             pixmap_scale = pixmap.scaled(256, 256,
                                          QtCore.Qt.KeepAspectRatio)
@@ -244,22 +261,27 @@ class App(QMainWindow):
             self.OG_image_histogram.resize(pixmap_scale.width(),
                                            pixmap_scale.height())
             self.image_size_label.setText('Image Size: ' +
-                                          str(pixmap.height()) +
-                                          'x' +
                                           str(pixmap.width()) +
+                                          'x' +
+                                          str(pixmap.height()) +
                                           ' pixels')
             self.image_size_label.adjustSize()
 
     @pyqtSlot()
-    def open_choose_location(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName = QFileDialog.getExistingDirectory(None,
-                                                    'Save As',
-                                                    'c:\\',
-                                                    QFileDialog.ShowDirsOnly)
-        if fileName:
-            self.textbox_location.setText(fileName)
+    def open_error(self):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText('Must open an image')
+        msg.setWindowTitle('Error')
+        msg.exec()
+
+    @pyqtSlot()
+    def no_patient_error(self):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText('Must enter a patient ID')
+        msg.setWindowTitle('Error')
+        msg.exec()
 
     @pyqtSlot()
     def on_click_clear_OG(self):
@@ -284,12 +306,310 @@ class App(QMainWindow):
         self.processed_image_histogram.setPixmap(pixmap_scale)
         self.processed_image_histogram.resize(pixmap_scale.width(),
                                               pixmap_scale.height())
+        self.process_state = 0
 
     @pyqtSlot()
-    def on_click_Upload(self):
-        self.time_stamp_label.setText(datetime.datetime.now().strftime(
-            "%m-%d-%Y %I:%M%p"))
-        self.time_stamp_label.adjustSize()
+    def on_click_JPEG(self):
+        if self.process_state == 0:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText('Must Process Image First')
+            msg.setWindowTitle('Error')
+            msg.exec()
+            return
+        fileName, _ = QFileDialog.getSaveFileName(self,
+                                                  "Save JPEG",
+                                                  os.getcwd(),
+                                                  "Image files (*.jpg)")
+        if fileName:
+            save_image = Image.open('save_as_jpg.jpg')
+            save_image.save(fileName, 'JPEG')
+
+    @pyqtSlot()
+    def on_click_PNG(self):
+        if self.process_state == 0:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText('Must Process Image First')
+            msg.setWindowTitle('Error')
+            msg.exec()
+            return
+        fileName, _ = QFileDialog.getSaveFileName(self,
+                                                  "Save PNG",
+                                                  os.getcwd(),
+                                                  "Image files (*.png)")
+        if fileName:
+            save_image = Image.open('save_as_jpg.jpg')
+            save_image.save(fileName, 'PNG')
+
+    @pyqtSlot()
+    def on_click_TIFF(self):
+        if self.process_state == 0:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText('Must Process Image First')
+            msg.setWindowTitle('Error')
+            msg.exec()
+            return
+        fileName, _ = QFileDialog.getSaveFileName(self,
+                                                  "Save TIFF",
+                                                  os.getcwd(),
+                                                  "Image files (*.tif)")
+        if fileName:
+            save_image = Image.open('save_as_jpg.jpg')
+            save_image.save(fileName, save_all=True)
+
+    @pyqtSlot()
+    def on_click_HE(self):
+        one_time = datetime.datetime.now()
+        server_HE = server + 'new_image'
+        if self.fileName == '':
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText('Must Open Image')
+            msg.setWindowTitle('Error')
+            msg.exec()
+            return
+        try:
+            send_string = front_end.encode_file_as_b64(self.fileName)
+        except AttributeError:
+            self.open_error()
+            return
+        if self.textbox.text() == "":
+            self.no_patient_error()
+        post_dict = {
+            'patient_id': str(self.textbox.text()),
+            'process_id': 1,
+            'image_file': send_string,
+        }
+        try:
+            r = requests.post(server_HE, json=post_dict)
+        except requests.exceptions.RequestException as e:
+            self.server_status.setText('Connection Failure')
+        try:
+            p_image = 'decode.jpg'
+            # front_end.decode_b64_image(r.json(), p_image)
+            image_bytes = base64.b64decode(r.json())
+            image_buf = io.BytesIO(image_bytes)
+            i = mpimg.imread(image_buf, format='JPG')
+            fig = plt.figure(frameon=False)
+            plt.imshow(i, interpolation='nearest')
+            plt.axis('off')
+
+            plt.savefig('save_as_jpg.jpg', bbox_inches='tight', pad_inches=0)
+            pixmap = QPixmap('save_as_jpg.jpg')
+            pixmap_scale = pixmap.scaled(256, 256,
+                                         QtCore.Qt.KeepAspectRatio)
+            self.label_image_processed.setPixmap(pixmap_scale)
+            self.label_image_processed.resize(pixmap_scale.width(),
+                                              pixmap_scale.height())
+            front_end.get_histogram_values('save_as_jpg.jpg',
+                                           'processed_histogram.jpg')
+            pixmap = QPixmap('processed_histogram.jpg')
+            pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+            self.processed_image_histogram.setPixmap(pixmap_scale)
+            self.processed_image_histogram.resize(pixmap_scale.width(),
+                                                  pixmap_scale.height())
+            self.server_status.setText('Successful')
+            self.time_stamp_label.setText(datetime.datetime.now().strftime(
+                "%m-%d-%Y %I:%M%p"))
+            self.time_stamp_label.adjustSize()
+            two_time = datetime.datetime.now()
+            time_delta = two_time - one_time
+            self.process_time.setText(str(time_delta))
+            self.process_time.adjustSize()
+            self.process_state = 1
+        except json.decoder.JSONDecodeError:
+            self.server_status.setText('Server Returned Nothing')
+
+    @pyqtSlot()
+    def on_click_CS(self):
+        if self.fileName == '':
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText('Must Open Image')
+            msg.setWindowTitle('Error')
+            msg.exec()
+            return
+        one_time = datetime.datetime.now()
+        server_HE = server + 'new_image'
+        try:
+            send_string = front_end.encode_file_as_b64(self.fileName)
+        except AttributeError:
+            self.open_error()
+            return
+        if self.textbox.text() == "":
+            self.no_patient_error()
+        post_dict = {
+            'patient_id': str(self.textbox.text()),
+            'process_id': 2,
+            'image_file': send_string,
+        }
+        try:
+            r = requests.post(server_HE, json=post_dict)
+        except requests.exceptions.RequestException as e:
+            self.server_status.setText('Connection Failure')
+        try:
+            p_image = 'decode.jpg'
+            # front_end.decode_b64_image(r.json(), p_image)
+            image_bytes = base64.b64decode(r.json())
+            image_buf = io.BytesIO(image_bytes)
+            i = mpimg.imread(image_buf, format='JPG')
+            fig = plt.figure(frameon=False)
+            plt.imshow(i, interpolation='nearest')
+            plt.axis('off')
+
+            plt.savefig('save_as_jpg.jpg', bbox_inches='tight', pad_inches=0)
+            pixmap = QPixmap('save_as_jpg.jpg')
+            pixmap_scale = pixmap.scaled(256, 256,
+                                         QtCore.Qt.KeepAspectRatio)
+            self.label_image_processed.setPixmap(pixmap_scale)
+            self.label_image_processed.resize(pixmap_scale.width(),
+                                              pixmap_scale.height())
+            front_end.get_histogram_values('save_as_jpg.jpg',
+                                           'processed_histogram.jpg')
+            pixmap = QPixmap('processed_histogram.jpg')
+            pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+            self.processed_image_histogram.setPixmap(pixmap_scale)
+            self.processed_image_histogram.resize(pixmap_scale.width(),
+                                                  pixmap_scale.height())
+            self.server_status.setText('Successful')
+            self.time_stamp_label.setText(datetime.datetime.now().strftime(
+                "%m-%d-%Y %I:%M%p"))
+            self.time_stamp_label.adjustSize()
+            two_time = datetime.datetime.now()
+            time_delta = two_time - one_time
+            self.process_time.setText(str(time_delta))
+            self.process_time.adjustSize()
+            self.process_state = 1
+        except json.decoder.JSONDecodeError:
+            self.server_status.setText('Server Returned Nothing')
+
+    @pyqtSlot()
+    def on_click_LC(self):
+        if self.fileName == '':
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText('Must Open Image')
+            msg.setWindowTitle('Error')
+            msg.exec()
+            return
+        one_time = datetime.datetime.now()
+        server_HE = server + 'new_image'
+        try:
+            send_string = front_end.encode_file_as_b64(self.fileName)
+        except AttributeError:
+            self.open_error()
+            return
+        if self.textbox.text() == "":
+            self.no_patient_error()
+        post_dict = {
+            'patient_id': str(self.textbox.text()),
+            'process_id': 3,
+            'image_file': send_string,
+        }
+        try:
+            r = requests.post(server_HE, json=post_dict)
+        except requests.exceptions.RequestException as e:
+            self.server_status.setText('Connection Failure')
+        try:
+            p_image = 'decode.jpg'
+            # front_end.decode_b64_image(r.json(), p_image)
+            image_bytes = base64.b64decode(r.json())
+            image_buf = io.BytesIO(image_bytes)
+            i = mpimg.imread(image_buf, format='JPG')
+            fig = plt.figure(frameon=False)
+            plt.imshow(i, interpolation='nearest')
+            plt.axis('off')
+
+            plt.savefig('save_as_jpg.jpg', bbox_inches='tight', pad_inches=0)
+            pixmap = QPixmap('save_as_jpg.jpg')
+            pixmap_scale = pixmap.scaled(256, 256,
+                                         QtCore.Qt.KeepAspectRatio)
+            self.label_image_processed.setPixmap(pixmap_scale)
+            self.label_image_processed.resize(pixmap_scale.width(),
+                                              pixmap_scale.height())
+            front_end.get_histogram_values('save_as_jpg.jpg',
+                                           'processed_histogram.jpg')
+            pixmap = QPixmap('processed_histogram.jpg')
+            pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+            self.processed_image_histogram.setPixmap(pixmap_scale)
+            self.processed_image_histogram.resize(pixmap_scale.width(),
+                                                  pixmap_scale.height())
+            self.server_status.setText('Successful')
+            self.time_stamp_label.setText(datetime.datetime.now().strftime(
+                "%m-%d-%Y %I:%M%p"))
+            self.time_stamp_label.adjustSize()
+            two_time = datetime.datetime.now()
+            time_delta = two_time - one_time
+            self.process_time.setText(str(time_delta))
+            self.process_time.adjustSize()
+            self.process_state = 1
+        except json.decoder.JSONDecodeError:
+            self.server_status.setText('Server Returned Nothing')
+
+    @pyqtSlot()
+    def on_click_RV(self):
+        if self.fileName == '':
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText('Must Open Image')
+            msg.setWindowTitle('Error')
+            msg.exec()
+            return
+        one_time = datetime.datetime.now()
+        server_HE = server + 'new_image'
+        try:
+            send_string = front_end.encode_file_as_b64(self.fileName)
+        except AttributeError:
+            self.open_error()
+            return
+        if self.textbox.text() == "":
+            self.no_patient_error()
+        post_dict = {
+            'patient_id': str(self.textbox.text()),
+            'process_id': 4,
+            'image_file': send_string,
+        }
+        try:
+            r = requests.post(server_HE, json=post_dict)
+        except requests.exceptions.RequestException as e:
+            self.server_status.setText('Connection Failure')
+        try:
+            p_image = 'decode.jpg'
+            # front_end.decode_b64_image(r.json(), p_image)
+            image_bytes = base64.b64decode(r.json())
+            image_buf = io.BytesIO(image_bytes)
+            i = mpimg.imread(image_buf, format='JPG')
+            fig = plt.figure(frameon=False)
+            plt.imshow(i, interpolation='nearest')
+            plt.axis('off')
+
+            plt.savefig('save_as_jpg.jpg', bbox_inches='tight', pad_inches=0)
+            pixmap = QPixmap('save_as_jpg.jpg')
+            pixmap_scale = pixmap.scaled(256, 256,
+                                         QtCore.Qt.KeepAspectRatio)
+            self.label_image_processed.setPixmap(pixmap_scale)
+            self.label_image_processed.resize(pixmap_scale.width(),
+                                              pixmap_scale.height())
+            front_end.get_histogram_values('save_as_jpg.jpg',
+                                           'processed_histogram.jpg')
+            pixmap = QPixmap('processed_histogram.jpg')
+            pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+            self.processed_image_histogram.setPixmap(pixmap_scale)
+            self.processed_image_histogram.resize(pixmap_scale.width(),
+                                                  pixmap_scale.height())
+            self.server_status.setText('Successful')
+            self.time_stamp_label.setText(datetime.datetime.now().strftime(
+                "%m-%d-%Y %I:%M%p"))
+            self.time_stamp_label.adjustSize()
+            two_time = datetime.datetime.now()
+            time_delta = two_time - one_time
+            self.process_time.setText(str(time_delta))
+            self.process_time.adjustSize()
+            self.process_state = 1
+        except json.decoder.JSONDecodeError:
+            self.server_status.setText('Server Returned Nothing')
 
 
 if __name__ == '__main__':
