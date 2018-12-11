@@ -8,13 +8,17 @@ import logging
 import base64
 import io as io2
 import numpy as np
+from skimage import io as im
 # logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
+import matplotlib
 from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
 from skimage import data, io, filters, img_as_float, exposure
 from PIL import Image, ImageStat
+import server
 
-logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
+# logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
+
 app = Flask(__name__)
 connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
 
@@ -140,9 +144,18 @@ def new_image():
     r = request.get_json()
     patient_id = r['patient_id']
     process_id = r['process_id']
-    image_file = r['image_file']
-    validate_image(image_file)
-    patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
+    image_file_encoded = r['image_file']
+    try:
+        patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
+    except ImageDB.DoesNotExist:
+        patient = ImageDB(int(r['patient_id']),
+                          histogram_count=0,
+                          contrast_count=0,
+                          log_count=0,
+                          reverse_count=0)
+        patient.save()
+    image_file = decode_b64_image(image_file_encoded)
+
     if process_id is 1:
         processor = 'Histogram Equalization'
         patient.histogram_count += 1
@@ -150,7 +163,7 @@ def new_image():
     elif process_id is 2:
         processor = 'Contrast Switch'
         patient.contrast_count += 1
-        processed_image = contrast_switch(image_file)
+        processed_image = contrast_stretch(image_file)
     elif process_id is 3:
         processor = 'Log Compression'
         patient.log_count += 1
@@ -164,9 +177,10 @@ def new_image():
         processed_image = image_file
     else:
         return jsonify('Not a valid ID')
-    save_image(patient_id, processor, processed_image)
-    confirmation = 'Upload Successful for Patient ID: ' + str(r['patient_id'])
-    return jsonify(confirmation)
+
+    # save_image(patient_id, processor, processed_image)
+    out = encode_file_as_b64(processed_image)
+    return jsonify(out)
 
 
 def validate_image(image_file):
@@ -205,7 +219,6 @@ def decode_b64_image(base64_string):
     :param base64_string:
     :return reconstructed_image: PIL image
     """
-    from skimage import io as im
     temp = open("temporary.png", "wb")
     temp.write(base64.b64decode(base64_string))
     temp.close()
@@ -264,9 +277,9 @@ def contrast_stretch(pil_image):
 def log_compression(pil_image):
     # Adapted from:
     # https://homepages.inf.ed.ac.uk/rbf/HIPR2/pixlog.htm
-    c = 255/(np.log10(1+np.amax(pil_image)))
+    c = 255 / (np.log10(1 + np.amax(pil_image)))
     for pixel in np.nditer(pil_image, op_flags=['readwrite']):
-        pixel[...] = c * np.log10(1+pixel)
+        pixel[...] = c * np.log10(1 + pixel)
     processed_image = pil_image.astype('uint8')
     return processed_image
 
@@ -348,7 +361,7 @@ if __name__ == "__main__":
     dogsJpg = Image.open("Dogs.jpg", mode='r')
     # dogsJpg = np.asarray(Image.open("Dogs.jpg", mode='r'))
     # opens PIL image as a ndarray
-    encoded = encode_file_as_b64(dogsJpg)   # induces UnicodeDecodeError
+    encoded = encode_file_as_b64(dogsJpg)  # induces UnicodeDecodeError
     # im = PIL.Image.fromarray(numpy.uint8(I))
     # converts ndarray to Pillow image
     save_as_format(dogsJpg, "BMP", 'Doggo')

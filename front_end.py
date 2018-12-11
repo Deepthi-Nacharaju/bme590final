@@ -16,15 +16,46 @@ from PIL import Image
 def encode_file_as_b64(image_path):
     with open(image_path, "rb") as image_file:
         en64 = base64.b64encode(image_file.read())
-        return str(en64)
+        en64 = en64.decode("utf-8")
+        return en64
 
 
-def decode_b64_image(base64_string):
+def decode_b64_image(base64_string, save_name):
     image_bytes = base64.b64decode(base64_string)
     image_buf = io.BytesIO(image_bytes)
     i = mpimg.imread(image_buf, format='JPG')
     plt.imshow(i, interpolation='nearest')
-    plt.show()
+    plt.savefig(save_name)
+    return
+
+
+# def decode_b64_image(base64_string):
+#     """
+#     :param base64_string:
+#     :return reconstructed_image: PIL image
+#     """
+#     from skimage import io as im
+#     temp = open("temporary.png", "wb")
+#     temp.write(base64.b64decode(base64_string))
+#     temp.close()
+#     reconstructed_image = im.imread("temporary.png")
+# #    image_bytes = base64.b64decode(base64_string)
+# #    image_buf = io.BytesIO(image_bytes)
+# #    i = mpimg.imread(image_buf, format='JPG')
+# #    plt.imshow(i, interpolation='nearest')
+# #    plt.show()
+#     return reconstructed_image
+#
+#
+# def encode_file_as_b64(image_array):
+#     image = Image.fromarray(image_array)
+#     buffer = io.BytesIO()
+#     image.save(buffer, format="JPEG")
+#     image_bytes = buffer.getvalue()
+#     image_string = base64.b64encode(image_bytes.decode("utf-8"))
+# #    with open(image_path, "rb") as image_file:
+# #        return base64.b64encode(image_file.read())
+#     return image_string
 
 
 def read_jpg(pic_str):
@@ -62,14 +93,15 @@ def get_histogram_values(image_name, save_name):
             b_list.append(b)
 
     # (9)   Plot the graph!
-    fig = plt.figure()
+    fig = plt.figure(frameon=False)
     plt.hist(r_list, bins=20, alpha=0.5, color='red')
     plt.hist(g_list, bins=20, alpha=0.5, color='green')
     plt.hist(b_list, bins=20, alpha=0.5, color='blue')
     plt.ylabel('Frequency')
     plt.xlabel('RGB')
-    plt.savefig(save_name)
+    plt.savefig(save_name, bbox_inches='tight', pad_inches=0)
     return
+
 
 if __name__ == "__main__":
     get_histogram_values('Original_Hist.jpg')
