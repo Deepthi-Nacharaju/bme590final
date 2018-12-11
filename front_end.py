@@ -28,6 +28,7 @@ def decode_b64_image(base64_string, save_name):
     plt.savefig(save_name)
     return
 
+
 # def decode_b64_image(base64_string):
 #     """
 #     :param base64_string:
@@ -92,14 +93,15 @@ def get_histogram_values(image_name, save_name):
             b_list.append(b)
 
     # (9)   Plot the graph!
-    fig = plt.figure()
+    fig = plt.figure(frameon=False)
     plt.hist(r_list, bins=20, alpha=0.5, color='red')
     plt.hist(g_list, bins=20, alpha=0.5, color='green')
     plt.hist(b_list, bins=20, alpha=0.5, color='blue')
     plt.ylabel('Frequency')
     plt.xlabel('RGB')
-    plt.savefig(save_name)
+    plt.savefig(save_name, bbox_inches='tight', pad_inches=0)
     return
+
 
 if __name__ == "__main__":
     get_histogram_values('Original_Hist.jpg')
