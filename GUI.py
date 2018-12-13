@@ -281,7 +281,6 @@ class App(QMainWindow):
         self.textbox.textChanged.connect(self.get_request)
         self.show()
 
-
     @pyqtSlot()
     def openFileNameDialog(self):
         options = QFileDialog.Options()
