@@ -187,22 +187,25 @@ class App(QMainWindow):
         self.button_HE.move(375, 55)
         self.button_HE.resize(110, 60)
         self.button_HE.clicked.connect(self.on_click_HE)
-
+        self.button_HE.clicked.connect(self.get_request)
         # Contrast Stretching
         self.button_CS = QPushButton('Contrast \n Stretching', self)
         self.button_CS.move(375, 105)
         self.button_CS.resize(110, 60)
         self.button_CS.clicked.connect(self.on_click_CS)
+        self.button_CS.clicked.connect(self.get_request)
         # Log Compression
         self.button_LC = QPushButton('Log \n Compression', self)
         self.button_LC.move(375, 155)
         self.button_LC.resize(110, 60)
         self.button_LC.clicked.connect(self.on_click_LC)
+        self.button_LC.clicked.connect(self.get_request)
         # Reverse Video
         self.button_RV = QPushButton('Reverse \n Video', self)
         self.button_RV.move(375, 205)
         self.button_RV.resize(110, 60)
         self.button_RV.clicked.connect(self.on_click_RV)
+        self.button_RV.clicked.connect(self.get_request)
         # TimeStamp Label Name
         self.time_stamp_name = QLabel(self)
         self.time_stamp_name.setText('Last Upload Time Stamp:')
@@ -231,12 +234,53 @@ class App(QMainWindow):
         self.image_size_label.move(135, 300)
         self.image_size_label.adjustSize()
         self.fileName = ''
-        self.show()
         try:
             r = requests.get(server)
             self.server_status.setText(r.json())
         except requests.exceptions.RequestException as e:
             self.server_status.setText('Server Failed to Initialize')
+
+        # DISPLAY GET REQUEST INFORMATION
+        self.histogram_count_label = QLabel(self)
+        self.histogram_count_label.setText('Histogram Count:')
+        self.histogram_count_label.adjustSize()
+        self.histogram_count_label.move(865, 405)
+
+        self.histogram_count = QLabel(self)
+        self.histogram_count.move(975, 405)
+        self.histogram_count.setText('')
+
+        self.contrast_count_label = QLabel(self)
+        self.contrast_count_label.setText('Contrast Count:')
+        self.contrast_count_label.adjustSize()
+        self.contrast_count_label.move(865, 430)
+
+        self.contrast_count = QLabel(self)
+        self.contrast_count.move(965, 430)
+        self.contrast_count.setText('')
+
+        self.log_count_label = QLabel(self)
+        self.log_count_label.setText('Log Count:')
+        self.log_count_label.adjustSize()
+        self.log_count_label.move(865, 455)
+
+        self.log_count = QLabel(self)
+        self.log_count.move(937, 455)
+        self.log_count.setText('')
+
+        self.reverse_count_label = QLabel(self)
+        self.reverse_count_label.setText('Reverse Count:')
+        self.reverse_count_label.adjustSize()
+        self.reverse_count_label.move(865, 480)
+
+        self.reverse_count = QLabel(self)
+        self.reverse_count.setText('')
+        self.reverse_count.move(960, 480)
+
+        self.id_status = self.textbox.text()
+        self.textbox.textChanged.connect(self.get_request)
+        self.show()
+
 
     @pyqtSlot()
     def openFileNameDialog(self):
@@ -266,6 +310,40 @@ class App(QMainWindow):
                                           str(pixmap.height()) +
                                           ' pixels')
             self.image_size_label.adjustSize()
+
+    @pyqtSlot()
+    def get_request(self):
+        patient_id = self.textbox.text()
+        add = ''
+        if self.id_status:
+            add = 'Post Request Successful' + '\n'
+        self.id_status = patient_id
+        get_server = server + "data/" + patient_id
+        try:
+            r = requests.get(get_server)
+        except requests.exceptions.RequestException as e:
+            self.server_status.setText(add +
+                                       'Get Request Error')
+            return
+        try:
+            r = r.json()
+            if r == 'DNE':
+                self.server_status.setText(add +
+                                           'Patient Does Not Exist')
+                return
+            self.histogram_count.setText(str(r['histogram_count']))
+            self.histogram_count.adjustSize()
+            self.contrast_count.setText(str(r['contrast_count']))
+            self.contrast_count.adjustSize()
+            self.log_count.setText(str(r['log_count']))
+            self.log_count.adjustSize()
+            self.reverse_count.setText(str(r['reverse_count']))
+            self.reverse_count.adjustSize()
+            self.server_status.setText(add +
+                                       'Get Request Successful')
+        except json.decoder.JSONDecodeError:
+            self.server_status.setText(add +
+                                       'Get Request Decode Error')
 
     @pyqtSlot()
     def open_error(self):
@@ -363,6 +441,10 @@ class App(QMainWindow):
     def on_click_HE(self):
         one_time = datetime.datetime.now()
         server_HE = server + 'new_image'
+        if not self.notes.toPlainText():
+            notes = 'No Additional Notes'
+        else:
+            notes = self.notes.toPlainText()
         if self.fileName == '':
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
@@ -381,6 +463,7 @@ class App(QMainWindow):
             'patient_id': str(self.textbox.text()),
             'process_id': 1,
             'image_file': send_string,
+            'notes': notes
         }
         try:
             r = requests.post(server_HE, json=post_dict)
