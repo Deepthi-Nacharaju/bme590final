@@ -34,6 +34,10 @@ class App(QMainWindow):
         self.initUI()
 
     def initUI(self):
+        """
+        Initializes the User Interface with all of the appropriate labels and buttons
+        :return:
+        """
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
@@ -283,6 +287,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def openFileNameDialog(self):
+        """
+        Opens File Dialog to choose image to be processed
+        :return:
+        """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         current = os.getcwd()
@@ -312,6 +320,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def get_request(self):
+        """
+        makes get request when patient id is changed or when image is processed to update the values in the bottom right of the GUI
+        :return:
+        """
         patient_id = self.textbox.text()
         add = ''
         if self.id_status:
@@ -346,6 +358,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def open_error(self):
+        """
+        Opens Error Window if image is not chosen
+        :return:
+        """
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Critical)
         msg.setText('Must open an image')
@@ -354,6 +370,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def no_patient_error(self):
+        """
+        Opens error window when patient ID is not provided
+        :return:
+        """
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Critical)
         msg.setText('Must enter a patient ID')
@@ -362,6 +382,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def on_click_clear_OG(self):
+        """
+        Clears original image space
+        :return:
+        """
         pixmap = QPixmap('white.png')
         pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
         self.label_image.setPixmap(pixmap_scale)
@@ -374,6 +398,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def on_click_clear_processed(self):
+        """
+        Clears processed image space
+        :return:
+        """
         pixmap = QPixmap('white.png')
         pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
         self.label_image_processed.setPixmap(pixmap_scale)
@@ -387,6 +415,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def on_click_JPEG(self):
+        """
+        Saves image as a JPEG
+        :return:
+        """
         if self.process_state == 0:
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
@@ -404,6 +436,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def on_click_PNG(self):
+        """
+        Saves image as a PNG
+        :return:
+        """
         if self.process_state == 0:
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
@@ -421,6 +457,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def on_click_TIFF(self):
+        """
+        Saves image as a TIFF
+        :return:
+        """
         if self.process_state == 0:
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
@@ -438,6 +478,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def on_click_HE(self):
+        """
+        Applies Histogram Equalization to original image and makes a POST request to the server
+        :return:
+        """
         one_time = datetime.datetime.now()
         server_HE = server + 'new_image'
         if not self.notes.toPlainText():
@@ -506,6 +550,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def on_click_CS(self):
+        """
+        Applies Contrast Stretching to original image and makes a POST request to the server
+        :return:
+        """
         if self.fileName == '':
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
@@ -569,6 +617,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def on_click_LC(self):
+        """
+        Applies Log Compression to original image and makes a POST request to the server
+        :return:
+        """
         if self.fileName == '':
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
@@ -632,6 +684,10 @@ class App(QMainWindow):
 
     @pyqtSlot()
     def on_click_RV(self):
+        """
+        Applies Reverse Video to original image and makes a POST request to the server
+        :return:
+        """
         if self.fileName == '':
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
