@@ -36,7 +36,8 @@ class App(QMainWindow):
     def initUI(self):
         """
 
-        Initializes the User Interface with all of the appropriate labels and buttons
+        Initializes the User Interface with all
+        of the appropriate labels and buttons
         :return:
         """
         self.setWindowTitle(self.title)
@@ -324,7 +325,8 @@ class App(QMainWindow):
     def get_request(self):
         """
 
-        Makes get request when patient id is changed or when image is processed to update the values in the bottom right of the GUI
+        Makes get request when patient id is changed or when image is processed
+        to update the values in the bottom right of the GUI
         :return:
         """
         patient_id = self.textbox.text()
@@ -490,7 +492,8 @@ class App(QMainWindow):
     def on_click_HE(self):
         """
 
-        Applies Histogram Equalization to original image and makes a POST request to the server
+        Applies Histogram Equalization to original
+        image and makes a POST request to the server
         :return:
         """
         one_time = datetime.datetime.now()
@@ -563,7 +566,8 @@ class App(QMainWindow):
     def on_click_CS(self):
         """
 
-        Applies Contrast Stretching to original image and makes a POST request to the server
+        Applies Contrast Stretching to original
+        image and makes a POST request to the server
         :return:
         """
         if self.fileName == '':
@@ -631,7 +635,8 @@ class App(QMainWindow):
     def on_click_LC(self):
         """
 
-        Applies Log Compression to original image and makes a POST request to the server
+        Applies Log Compression to original image and
+        makes a POST request to the server
         :return:
         """
         if self.fileName == '':
@@ -699,7 +704,8 @@ class App(QMainWindow):
     def on_click_RV(self):
         """
 
-        Applies Reverse Video to original image and makes a POST request to the server
+        Applies Reverse Video to original image and
+        makes a POST request to the server
         :return:
         """
         if self.fileName == '':
