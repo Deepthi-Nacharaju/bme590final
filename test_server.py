@@ -5,6 +5,7 @@ from server import reverse_video
 from server import histogram_equalization
 from server import contrast_stretch
 from server import log_compression
+from server import is_gray
 from server import make_gray
 import base64
 import io
@@ -18,12 +19,18 @@ def test_validate_image():
     assert True
 
 
-# def test_make_gray():
-#    correct = io2.imread('testing_files/testmakegray.png')
-#    dog = io2.imread('testing_files/Dogs.jpg')
-#    dog_gray = make_gray(dog)
-    #    dog_gray = np.transpose(dog_gray, (2, 0, 1))
-#    assert np.array_equal(dog_gray, correct)
+def test_make_gray():
+    dog = io2.imread('testing_files/Dogs.jpg')
+    assert(not is_gray(dog))
+    dog_gray = make_gray(dog)
+    dog_gray.save('testing_files/testmakegray.png')
+    gray_image = io2.imread('testing_files/testmakegray.png')
+    assert(is_gray(gray_image))
+
+
+def test_is_gray():
+    correct = io2.imread('testing_files/testmakegray.png')
+    assert(is_gray(correct))
 
 
 def test_log_compression():
@@ -45,6 +52,11 @@ def test_histogram_equalization():
     dog = io2.imread('testing_files/Dogs.jpg')
     dog_equalized = histogram_equalization(dog)
     assert np.array_equal(dog_equalized, correct)
+    gray = io2.imread('testing_files/testmakegray.png')
+    gray_equalized = histogram_equalization(gray)
+    correct_gray = io2.imread('testing_files/'
+                              'testgrayhistogramequalization.png')
+    assert np.array_equal(gray_equalized, correct_gray)
 
 
 def test_reverse_video():
