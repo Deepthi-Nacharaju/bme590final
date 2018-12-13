@@ -54,7 +54,8 @@ def test_histogram_equalization():
     assert np.array_equal(dog_equalized, correct)
     gray = io2.imread('testing_files/testmakegray.png')
     gray_equalized = histogram_equalization(gray)
-    correct_gray = io2.imread('testing_files/testgrayhistogramequalization.png')
+    correct_gray = io2.imread('testing_files/'
+                              'testgrayhistogramequalization.png')
     assert np.array_equal(gray_equalized, correct_gray)
 
 
