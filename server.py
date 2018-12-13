@@ -29,6 +29,7 @@ class ImageDB(MongoModel):
 
     Attributes:
         patient_id (str): unique patient mrn.
+        original (list): associated original image for each upload
         histogram_count (int): number of times histogram
             equalization was conducted.
         contrast_count (int): number of times contrast stretching
@@ -47,6 +48,7 @@ class ImageDB(MongoModel):
 
     """
     patient_id = fields.CharField(primary_key=True)
+    original = fields.ListField()
     histogram_count = fields.IntegerField()
     contrast_count = fields.IntegerField()
     log_count = fields.IntegerField()
@@ -142,6 +144,7 @@ def new_image():
     patient_id = r['patient_id']
     process_id = r['process_id']
     image_file_encoded = r['image_file']
+    original_encoded = r['original']
     try:
         patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     except ImageDB.DoesNotExist:
@@ -152,7 +155,7 @@ def new_image():
                           reverse_count=0)
         patient.save()
     image_file = decode_b64_image(image_file_encoded)
-
+    original = decode_b64_image(original_encoded)
     if process_id is 1:
         processor = 'Histogram Equalization'
         patient.histogram_count += 1
@@ -175,7 +178,7 @@ def new_image():
     else:
         return jsonify('Not a valid ID')
 
-    # save_image(patient_id, processor, processed_image)
+    save_image(patient_id, processor, processed_image, original)
     out = encode_file_as_b64(processed_image)
     return jsonify(out)
 
@@ -188,26 +191,24 @@ def validate_image(image_file):
     return
 
 
-def save_image(patient_id, processor, image_file):
+def save_image(patient_id, processor, image_file, original):
     patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     try:
         patient.images.append(image_file)
-        patient.save()
     except AttributeError:
         patient.images = image_file
-        patient.save()
     try:
         patient.images_time_stamp.append(datetime.datetime.now())
-        patient.save()
     except AttributeError:
         patient.images_time_stamp = datetime.datetime.now()
-        patient.save()
     try:
         patient.processor.append(processor)
-        patient.save()
     except AttributeError:
         patient.processor = processor
-        patient.save()
+    try:
+        patient.original.append(original)
+    except AttributeError:
+        patient.original = original
     return
 
 
