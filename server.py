@@ -207,6 +207,15 @@ def validate_image(image_file):
 
 
 def save_image(patient_id, processor, image_file, original, notes):
+    """
+
+    :param patient_id: Usually mrn number
+    :param processor: Type of processor applied to original image
+    :param image_file: Processed Image file to be saved
+    :param original: Original Image file to be saved
+    :param notes: Any notes the user would like additionally saved
+    :return:
+    """
     patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     try:
         patient.images.append(image_file)
@@ -250,6 +259,11 @@ def decode_b64_image(base64_string):
 
 
 def encode_file_as_b64(image_array):
+    """
+
+    :param image_array: PIL Image
+    :return: base64_string
+    """
     image = Image.fromarray(image_array)
     buffer = io2.BytesIO()
     image.save(buffer, format="PNG")
