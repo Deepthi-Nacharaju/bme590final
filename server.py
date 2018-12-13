@@ -29,8 +29,7 @@ class ImageDB(MongoModel):
 
     Attributes:
         patient_id (str): unique patient mrn.
-        actions (list): specifies a list of image processor actions.
-        :histogram_count (int): number of times histogram
+        histogram_count (int): number of times histogram
             equalization was conducted.
         contrast_count (int): number of times contrast stretching
             was conducted.
@@ -48,7 +47,6 @@ class ImageDB(MongoModel):
 
     """
     patient_id = fields.CharField(primary_key=True)
-    actions = fields.ListField()
     histogram_count = fields.IntegerField()
     contrast_count = fields.IntegerField()
     log_count = fields.IntegerField()
@@ -112,7 +110,6 @@ def get_data(patient_id):
     dict_array = {
         "patient_id": u.patient_id,
         "original": u.original,
-        "actions": u.actions,
         "histogram_count": u.histogram,
         "contrast_count": u.contrast_count,
         "log_count": u.log_count,
