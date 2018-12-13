@@ -245,13 +245,33 @@ def encode_file_as_b64(image_array):
 def make_gray(pil_image):
     image = Image.fromarray(pil_image)
     gray_scale = image.convert('LA')
-    gray = np.array(gray_scale)
-    processed_image = gray
+    # gray = np.array(gray_scale)
+    processed_image = gray_scale
     return processed_image
 
 
+def is_gray(pil_image):
+    # https://stackoverflow.com/questions
+    # /23660929/how-to-check-whether-a-jpeg-image-is-color-or-gray-scale-using-only-python-stdli
+    image = Image.fromarray(pil_image)
+    imageRGB = image.convert('RGB')
+    w, h = imageRGB.size
+    for i in range(w):
+        for j in range(h):
+            r, g, b = imageRGB.getpixel((i, j))
+            if r != g != b:
+                return False
+    return True
+
+
 def histogram_equalization(pil_image):
-    equalized = exposure.equalize_hist(pil_image.astype('uint8'))
+    if not is_gray(pil_image):
+        gray = make_gray(pil_image)
+        gray.save('temp.png')
+        gray = io.imread('temp.png')
+    else:
+        gray = pil_image
+    equalized = exposure.equalize_hist(gray)
     normalized = 255 * equalized
     processed_image = normalized.astype('uint8')
     return processed_image
