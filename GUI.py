@@ -35,6 +35,7 @@ class App(QMainWindow):
 
     def initUI(self):
         """
+
         Initializes the User Interface with all of the appropriate labels and buttons
         :return:
         """
@@ -288,6 +289,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def openFileNameDialog(self):
         """
+
         Opens File Dialog to choose image to be processed
         :return:
         """
@@ -321,7 +323,8 @@ class App(QMainWindow):
     @pyqtSlot()
     def get_request(self):
         """
-        makes get request when patient id is changed or when image is processed to update the values in the bottom right of the GUI
+
+        Makes get request when patient id is changed or when image is processed to update the values in the bottom right of the GUI
         :return:
         """
         patient_id = self.textbox.text()
@@ -359,6 +362,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def open_error(self):
         """
+
         Opens Error Window if image is not chosen
         :return:
         """
@@ -371,6 +375,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def no_patient_error(self):
         """
+
         Opens error window when patient ID is not provided
         :return:
         """
@@ -383,6 +388,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def on_click_clear_OG(self):
         """
+
         Clears original image space
         :return:
         """
@@ -399,6 +405,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def on_click_clear_processed(self):
         """
+
         Clears processed image space
         :return:
         """
@@ -416,6 +423,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def on_click_JPEG(self):
         """
+
         Saves image as a JPEG
         :return:
         """
@@ -437,6 +445,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def on_click_PNG(self):
         """
+
         Saves image as a PNG
         :return:
         """
@@ -458,6 +467,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def on_click_TIFF(self):
         """
+
         Saves image as a TIFF
         :return:
         """
@@ -479,6 +489,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def on_click_HE(self):
         """
+
         Applies Histogram Equalization to original image and makes a POST request to the server
         :return:
         """
@@ -551,6 +562,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def on_click_CS(self):
         """
+
         Applies Contrast Stretching to original image and makes a POST request to the server
         :return:
         """
@@ -618,6 +630,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def on_click_LC(self):
         """
+
         Applies Log Compression to original image and makes a POST request to the server
         :return:
         """
@@ -685,6 +698,7 @@ class App(QMainWindow):
     @pyqtSlot()
     def on_click_RV(self):
         """
+
         Applies Reverse Video to original image and makes a POST request to the server
         :return:
         """
