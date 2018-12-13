@@ -29,8 +29,8 @@ class ImageDB(MongoModel):
 
     Attributes:
         patient_id (str): unique patient mrn.
-        actions (list): specifies a list of image processor actions.
-        :histogram_count (int): number of times histogram
+        original (list): associated original image for each upload
+        histogram_count (int): number of times histogram
             equalization was conducted.
         contrast_count (int): number of times contrast stretching
             was conducted.
@@ -39,8 +39,6 @@ class ImageDB(MongoModel):
         reverse_count (int): number of times reverse video
             was conducted.
         images (list): list of original image and processed images.
-        histogram_values (list): number of pixels associated with a
-            particular brightness value.
         processor (list): list of completed processor actions.
         images_time_stamp (list): list of timestamps of completed
             processor actions.
@@ -48,13 +46,12 @@ class ImageDB(MongoModel):
 
     """
     patient_id = fields.CharField(primary_key=True)
-    actions = fields.ListField()
+    original = fields.ListField()
     histogram_count = fields.IntegerField()
     contrast_count = fields.IntegerField()
     log_count = fields.IntegerField()
     reverse_count = fields.IntegerField()
     images = fields.ListField()
-    histogram_values = fields.ListField()
     processor = fields.ListField()
     images_time_stamp = fields.ListField()
     notes = fields.ListField()
@@ -76,8 +73,7 @@ def greeting():
     return jsonify(welcome)
 
 
-@app.route("/new_patient", methods=["POST"])
-def add_new_patient():
+def add_new_patient(patient_id):
     """ Adds new patient to image processor
 
     Returns:
@@ -85,15 +81,44 @@ def add_new_patient():
             initialization
 
     """
-    r = request.get_json()
-    patient = ImageDB(int(r['patient_id']),
+    patient = ImageDB(int(format(patient_id)),
                       histogram_count=0,
                       contrast_count=0,
                       log_count=0,
                       reverse_count=0)
     patient.save()
-    new_patient = 'New Patient Initialized with ID: ' + str(r['patient_id'])
-    return jsonify(new_patient)
+    new_patient = 'New Patient Initialized with ID: ' + str(format(patient_id))
+    return print(new_patient)
+
+
+@app.route("/data/all/<patient_id>", methods=["GET"])
+def get_all_data(patient_id):
+    """Returns stored counts information for a patient
+    as a JSON dictionary
+
+    Args:
+        patient_id (str): string specifying patient id.
+
+    Returns:
+         dict_array (dict): dictionary of all stored data
+
+    """
+    try:
+        u = ImageDB.objects.raw({"_id": str(patient_id)}).first()
+        dict_array = {
+            "original": u.original,
+            "histogram_count": u.histogram_count,
+            "contrast_count": u.contrast_count,
+            "log_count": u.log_count,
+            "reverse_count": u.reverse_count,
+            "images": u.images,
+            "processor": u.processor,
+            "images_time_stamp": u.images_time_stamp,
+            "notes": u.notes,
+        }
+    except ImageDB.DoesNotExist:
+        dict_array = 'DNE'
+    return jsonify(dict_array)
 
 
 @app.route("/data/<patient_id>", methods=["GET"])
@@ -108,21 +133,16 @@ def get_data(patient_id):
          dict_array (dict): dictionary of all stored data
 
     """
-    u = ImageDB.objects.raw({"_id": int(patient_id)}).first()
-    dict_array = {
-        "patient_id": u.patient_id,
-        "original": u.original,
-        "actions": u.actions,
-        "histogram_count": u.histogram,
-        "contrast_count": u.contrast_count,
-        "log_count": u.log_count,
-        "reverse_count": u.reverse_count,
-        "images": u.images,
-        "histogram_values": u.histogram_values,
-        "processor": u.processor,
-        "images_time_stamp": u.images_time_stamp,
-        "notes": u.notes
-    }
+    try:
+        u = ImageDB.objects.raw({"_id": str(patient_id)}).first()
+        dict_array = {
+            "histogram_count": u.histogram_count,
+            "contrast_count": u.contrast_count,
+            "log_count": u.log_count,
+            "reverse_count": u.reverse_count,
+        }
+    except ImageDB.DoesNotExist:
+        dict_array = 'DNE'
     return jsonify(dict_array)
 
 
@@ -145,17 +165,12 @@ def new_image():
     patient_id = r['patient_id']
     process_id = r['process_id']
     image_file_encoded = r['image_file']
+    notes = r['notes']
     try:
         patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     except ImageDB.DoesNotExist:
-        patient = ImageDB(int(r['patient_id']),
-                          histogram_count=0,
-                          contrast_count=0,
-                          log_count=0,
-                          reverse_count=0)
-        patient.save()
+        add_new_patient(patient_id)
     image_file = decode_b64_image(image_file_encoded)
-
     if process_id is 1:
         processor = 'Histogram Equalization'
         patient.histogram_count += 1
@@ -177,9 +192,9 @@ def new_image():
         processed_image = image_file
     else:
         return jsonify('Not a valid ID')
-
-    # save_image(patient_id, processor, processed_image)
+    patient.save()
     out = encode_file_as_b64(processed_image)
+    save_image(patient_id, processor, out, image_file_encoded, notes)
     return jsonify(out)
 
 
@@ -191,26 +206,29 @@ def validate_image(image_file):
     return
 
 
-def save_image(patient_id, processor, image_file):
+def save_image(patient_id, processor, image_file, original, notes):
     patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     try:
         patient.images.append(image_file)
-        patient.save()
     except AttributeError:
         patient.images = image_file
-        patient.save()
     try:
         patient.images_time_stamp.append(datetime.datetime.now())
-        patient.save()
     except AttributeError:
         patient.images_time_stamp = datetime.datetime.now()
-        patient.save()
     try:
         patient.processor.append(processor)
-        patient.save()
     except AttributeError:
         patient.processor = processor
-        patient.save()
+    try:
+        patient.original.append(original)
+    except AttributeError:
+        patient.original = original
+    try:
+        patient.notes.append(notes)
+    except AttributeError:
+        patient.notes = notes
+    patient.save()
     return
 
 
