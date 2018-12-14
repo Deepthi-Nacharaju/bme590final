@@ -395,7 +395,8 @@ class App(QMainWindow):
     def on_click_clear_OG(self):
         """
 
-        Clears original image space
+        Updates image spaces with last procssed image
+        for the specified patient ID
         :return:
         """
         patient_id = self.textbox.text()
