@@ -481,6 +481,7 @@ class App(QMainWindow):
         self.processed_image_histogram.setPixmap(pixmap_scale)
         self.processed_image_histogram.resize(pixmap_scale.width(),
                                               pixmap_scale.height())
+        self.button_open.setEnabled(False)
 
     @pyqtSlot()
     def on_click_JPEG(self):
