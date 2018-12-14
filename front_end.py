@@ -17,7 +17,7 @@ def encode_file_as_b64(image_path):
         image_path (str): image name
 
     Returns:
-        en64 : base64 representation of image
+        (str): en64: base64 representation of image
 
     """
     with open(image_path, "rb") as image_file:
@@ -38,7 +38,7 @@ def decode_b64_image(base64_string, save_name):
         save_name (str): name of image to be saved.
 
     Returns:
-        reconstructed_image (array): PIL image object
+        PIL image object (array): reconstructed_image
 
     """
     image_bytes = base64.b64decode(base64_string)
@@ -63,7 +63,7 @@ def read_jpg(pic_str):
         pic_string (str): .JPG image name
 
     Returns:
-        pic_data (bytes): image in its bytes representation.
+        (bytes): pic_data: image in its bytes representation.
 
     """
     with open(pic_str, 'rb') as pic:
@@ -84,10 +84,7 @@ def get_histogram_values(image_name, save_name):
             plot will be stored.
 
     Returns:
-        r_list (list): list of pixel intensity
-        g_list (list): list of pixel intensity
-        b_list (list): list of pixel intensity
-
+        (list): r_list, g_list, b_list
     """
     # (1) Import the file to be analyzed!
     img_file = Image.open(image_name)

@@ -60,7 +60,7 @@ def greeting():
     and confirms connection with the web server.
 
     Returns:
-        welcome (str): "Welcome to the image processor"
+        (str): welcome: "Welcome to the image processor"
 
     """
 
@@ -75,7 +75,7 @@ def add_new_patient(patient_id, original_file):
     and initializes image processor counts.
 
     Returns:
-        new_patient (str): confirmation of new patient's
+        (str): confirmation of new patient's
             initialization
 
     """
@@ -105,7 +105,7 @@ def get_all_data(patient_id):
         patient_id (str): string specifying patient id.
 
     Returns:
-         dict_array (dict): dictionary of all stored data
+        (dict): dict_array: dictionary of all stored data
 
     """
     try:
@@ -137,7 +137,7 @@ def get_stack(patient_id):
         patient_id (str): usually patient mrn.
 
     Returns:
-        dict_array (dict): dictionary containing list of images.
+        (dict): dict_array: dictionary containing list of images.
 
     """
     try:
@@ -161,7 +161,7 @@ def get_data(patient_id):
         patient_id (str): string specifying patient id.
 
     Returns:
-         dict_array (dict): dictionary of image processor counts.
+         (dict): dict_array: dictionary of image processor counts.
 
     """
     try:
@@ -188,7 +188,7 @@ def get_last(patient_id):
         patient_id (str): string specifying patient id.
 
     Returns:
-        dict_array (dict): dictionary of images.
+        (dict): dict_array: dictionary of images.
 
     """
     try:
@@ -215,7 +215,7 @@ def new_image():
         image_file (str): image as b64 string.
 
     Returns:
-         confirmation (str): upload confirmation of image
+         (str): confirmation: upload confirmation of image
 
     """
     r = request.get_json()
@@ -314,7 +314,7 @@ def decode_b64_image(base64_string):
             representation of an image.
 
     Returns:
-        reconstructed_image (array): PIL image object
+        PIL image object (array): reconstructed_image
 
     """
     temp = open("temporary.png", "wb")
@@ -334,7 +334,7 @@ def encode_file_as_b64(image_array):
         image_array : PIL image
 
     Returns:
-        base64_string (str): base64 representation of image
+        (str): image_string: base64 representation of image
 
     """
     image = Image.fromarray(image_array)
@@ -357,7 +357,7 @@ def make_gray(pil_image):
         PIL_array : image array
 
     Returns:
-        processed_image : gray scale image
+        PIL image object (array) : processed_image: gray scale image
 
     """
     image = Image.fromarray(pil_image)
@@ -378,7 +378,7 @@ def is_gray(pil_image):
         PIL_array : image array
 
     Returns:
-        gray scale: if the image is gray scale.
+        (bool): gray scale: if the image is gray scale.
 
     """
 
@@ -403,8 +403,8 @@ def histogram_equalization(pil_image):
         pil_image : image array
 
     Returns:
-        processed_image: image array with histogram equalization
-            applied.
+        PIL image object (array): processed_image: image array with
+            histogram equalization applied.
 
     """
     if not is_gray(pil_image):
@@ -429,8 +429,8 @@ def contrast_stretch(pil_image):
         pil_image : image array
 
     Returns:
-        processed_image: image array with contrast
-            stretching applied.
+        PIL image object (array): processed_image: image array
+            with contrast stretching applied.
 
     """
     p2 = np.percentile(pil_image, 2)
@@ -451,7 +451,7 @@ def log_compression(pil_image):
         pil_image : image array
 
     Returns:
-        processed_image: image array with
+        PIL image object (array): processed_image: image array with
             log compression applied.
 
     """
@@ -474,7 +474,7 @@ def reverse_video(pil_image):
         pil_image : image array
 
     Returns:
-        processed_image: image array with
+        PIL image object (array): processed_image: image array with
             reverse video applied.
 
     """

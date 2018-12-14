@@ -39,10 +39,6 @@ class App(QMainWindow):
         Initializes the User Interface with all
         of the appropriate labels and buttons
 
-        Args:
-
-        Returns:
-
         """
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
@@ -301,10 +297,6 @@ class App(QMainWindow):
 
         Opens File Dialog to choose image to be processed
 
-        Args:
-
-        Returns:
-
         """
 
         options = QFileDialog.Options()
@@ -342,10 +334,6 @@ class App(QMainWindow):
 
         Makes get request when patient id is changed or when image is processed
         to update the values in the bottom right of the GUI
-
-        Args:
-
-        Returns:
 
         """
         patient_id = self.textbox.text()
@@ -386,9 +374,6 @@ class App(QMainWindow):
 
         Opens Error Window if image is not chosen
 
-        Args:
-
-        Returns:
 
         """
 
@@ -404,10 +389,6 @@ class App(QMainWindow):
 
         Opens error window when patient ID is not provided
 
-        Args:
-
-        Returns:
-
         """
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Critical)
@@ -421,10 +402,6 @@ class App(QMainWindow):
 
         Updates image spaces with last processed image
         for the specified patient ID
-
-        Args:
-
-        Returns:
 
         """
         patient_id = self.textbox.text()
@@ -530,10 +507,6 @@ class App(QMainWindow):
 
         Saves image as a JPEG
 
-        Args:
-
-        Returns:
-
         """
         if self.process_state == 0:
             msg = QMessageBox(self)
@@ -556,10 +529,6 @@ class App(QMainWindow):
 
         Saves image as a PNG
 
-        Args:
-
-        Returns:
-
         """
         if self.process_state == 0:
             msg = QMessageBox(self)
@@ -581,10 +550,6 @@ class App(QMainWindow):
         """
 
         Saves image as a TIFF
-
-        Args:
-
-        Returns:
 
         """
         if self.process_state == 0:
@@ -612,10 +577,6 @@ class App(QMainWindow):
 
         Applies Histogram Equalization to original
         image and makes a POST request to the server
-
-        Args:
-
-        Returns:
 
         """
         one_time = datetime.datetime.now()
@@ -691,10 +652,6 @@ class App(QMainWindow):
         Applies Contrast Stretching to original
         image and makes a POST request to the server
 
-        Args:
-
-        Returns:
-
         """
         if not self.notes.toPlainText():
             notes = 'No Additional Notes'
@@ -769,10 +726,6 @@ class App(QMainWindow):
         Applies Log Compression to original image and
         makes a POST request to the server
 
-        Args:
-
-        Returns:
-
         """
         if not self.notes.toPlainText():
             notes = 'No Additional Notes'
@@ -846,10 +799,6 @@ class App(QMainWindow):
 
         Applies Reverse Video to original image and
         makes a POST request to the server
-
-        Args:
-
-        Returns:
 
         """
         if not self.notes.toPlainText():
