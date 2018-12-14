@@ -1,6 +1,37 @@
 INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-INFO:werkzeug:127.0.0.1 - - [09/Dec/2018 21:05:42] "GET / HTTP/1.1" 200 -
-INFO:werkzeug:127.0.0.1 - - [09/Dec/2018 21:05:57] "POST / HTTP/1.1" 405 -
-INFO:werkzeug:127.0.0.1 - - [09/Dec/2018 21:07:37] "GET / HTTP/1.1" 200 -
-INFO:werkzeug:127.0.0.1 - - [09/Dec/2018 21:07:50] "POST / HTTP/1.1" 405 -
-INFO:werkzeug:127.0.0.1 - - [09/Dec/2018 21:07:55] "POST / HTTP/1.1" 405 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:17] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:22] "GET /data/6 HTTP/1.1" 200 -
+DEBUG:root:None
+ERROR:flask.app:Exception on /new_image [POST]
+Traceback (most recent call last):
+  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\_compat.py", line 35, in reraise
+    raise value
+  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:/Users/Ashish Vankara/bme590final/server.py", line 169, in new_image
+    patient.histogram_count += 1
+UnboundLocalError: local variable 'patient' referenced before assignment
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:31] "POST /new_image HTTP/1.1" 500 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:31] "GET /data/6 HTTP/1.1" 200 -
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 65536
+DEBUG:root:Histogram Equalization was conducted
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:33] "POST /new_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:34] "GET /data/6 HTTP/1.1" 200 -
+DEBUG:root:Contrast Switch was conducted
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:48] "POST /new_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:49] "GET /data/6 HTTP/1.1" 200 -
+DEBUG:root:Log Compression was conducted
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:40:06] "POST /new_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:40:08] "GET /data/6 HTTP/1.1" 200 -
+DEBUG:root:Reverse Video was conducted
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:40:20] "POST /new_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:40:22] "GET /data/6 HTTP/1.1" 200 -

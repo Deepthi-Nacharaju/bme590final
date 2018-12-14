@@ -2,12 +2,8 @@ from front_end import decode_b64_image
 from front_end import encode_file_as_b64
 from front_end import read_jpg
 from front_end import get_histogram_values
-import base64
-import io
 from skimage import io as io2
-import matplotlib.image as mpimg
 import numpy as np
-from PIL import Image
 
 
 def test_decode_b64_image():

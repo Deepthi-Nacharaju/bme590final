@@ -1,4 +1,3 @@
-import pytest
 from server import encode_file_as_b64
 from server import decode_b64_image
 from server import reverse_video
@@ -7,16 +6,8 @@ from server import contrast_stretch
 from server import log_compression
 from server import is_gray
 from server import make_gray
-import base64
-import io
 from skimage import io as io2
-import matplotlib.image as mpimg
 import numpy as np
-from PIL import Image
-
-
-def test_validate_image():
-    assert True
 
 
 def test_make_gray():

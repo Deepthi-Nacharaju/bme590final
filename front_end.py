@@ -1,15 +1,8 @@
-from PIL import Image, ImageFilter
 import base64
 import io
-import requests
-from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
-import PyQt5
 # Stuff for color intensity histogram
-import numpy as np
-import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.pyplot as plt
-import colorsys
 from PIL import Image
 from skimage import io as im
 
@@ -81,22 +74,3 @@ def get_histogram_values(image_name, save_name):
 
 if __name__ == "__main__":
     get_histogram_values('Original_Hist.jpg')
-    # server = "http://127.0.0.1:5000/"
-    # r = requests.get(server)
-    # print(r.json())
-    # server = "http://127.0.0.1:5000/new_patient"
-    # post_dict = {'patient_id': 1}
-    # r = requests.post(server, json=post_dict)
-    # print(r.json())
-    # post_dict = {'patient_id': 2}
-    # r = requests.post(server, json=post_dict)
-    # p2_image = encode_file_as_b64('Dogs.jpg')
-    # server = "http://127.0.0.1:5000/new_image"
-    # post_dict = {'patient_id': 2,
-    #              'process_id': 0,
-    #              'image_file': p2_image}
-    # r = requests.post(server, json=post_dict)
-    # print(r.json())
-    # server = "http://127.0.0.1:5000/data/2"
-    # r = requests.get(server)
-    # print(r.json())
