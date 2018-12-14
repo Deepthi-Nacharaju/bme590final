@@ -121,6 +121,11 @@ def get_all_data(patient_id):
 
 @app.route("/data/stack/<patient_id>", methods=["GET"])
 def get_stack(patient_id):
+    """
+
+    :param patient_id: usually patient mrn
+    :return: json dictionary of all image layers
+    """
     try:
         u = ImageDB.objects.raw({"_id": str(format(patient_id))}).first()
         dict_array = {
@@ -303,6 +308,11 @@ def encode_file_as_b64(image_array):
 
 
 def make_gray(pil_image):
+    """
+
+    :param pil_image: PIL Image to be processed
+    :return: gray scale image
+    """
     image = Image.fromarray(pil_image)
     gray_scale = image.convert('LA')
     # gray = np.array(gray_scale)
@@ -311,6 +321,11 @@ def make_gray(pil_image):
 
 
 def is_gray(pil_image):
+    """
+
+    :param pil_image: PIL image to be processed
+    :return: if image is grayscale or not
+    """
     # https://stackoverflow.com/questions
     # /23660929/how-to-check-whether-a-jpeg-image-is-color-or-gray-scale-using-only-python-stdli
     image = Image.fromarray(pil_image)
@@ -325,6 +340,11 @@ def is_gray(pil_image):
 
 
 def histogram_equalization(pil_image):
+    """
+
+    :param pil_image: PIL Image to be processed
+    :return: processed image that has histogram equalization
+    """
     if not is_gray(pil_image):
         gray = make_gray(pil_image)
         gray.save('temp.png')
@@ -338,6 +358,11 @@ def histogram_equalization(pil_image):
 
 
 def contrast_stretch(pil_image):
+    """
+
+    :param pil_image: PIL Image to be processed
+    :return: Image that has been contrast stretched
+    """
     p2 = np.percentile(pil_image, 2)
     p98 = np.percentile(pil_image, 98)
     rescaled_image = exposure.rescale_intensity(pil_image, in_range=(p2, p98))
@@ -346,6 +371,11 @@ def contrast_stretch(pil_image):
 
 
 def log_compression(pil_image):
+    """
+
+    :param pil_image: PIL image to be processed
+    :return: Image that has been log compressed
+    """
     # Adapted from:
     # https://homepages.inf.ed.ac.uk/rbf/HIPR2/pixlog.htm
     c = 255 / (np.log10(1 + np.amax(pil_image)))
