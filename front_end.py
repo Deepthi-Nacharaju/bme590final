@@ -28,7 +28,7 @@ def encode_file_as_b64(image_path):
 
 def decode_b64_image(base64_string, save_name):
     """
-    
+
     This function takes in a base64 string and name, decodes it
     into and saves the image for display.
 
