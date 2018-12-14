@@ -498,7 +498,7 @@ class App(QMainWindow):
         if len(r['original']) > 1:
             image_bytes = base64.b64decode(r['original'][0])
         else:
-            image_bytes = base64.b64decode(r['original'])
+            image_bytes = base64.b64decode(r['original'][0])
         self.original = r['original']
 
         image_buf = io.BytesIO(image_bytes)
