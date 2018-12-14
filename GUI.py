@@ -78,21 +78,21 @@ class App(QMainWindow):
         # Create Open button to open image file
         self.button_open = QPushButton('Open', self)
         self.button_open.move(125, 270)
-
+        self.button_open.setEnabled(False)
         # Create clear button for OG image file
-        self.button_clear = QPushButton('Clear', self)
-        self.button_clear.move(225, 270)
+        # self.button_clear = QPushButton('Clear', self)
+        # self.button_clear.move(225, 270)
 
         # connect button to function on click clear OG
-        self.button_clear.clicked.connect(self.on_click_clear_OG)
+        # self.button_clear.clicked.connect(self.on_click_clear_OG)
 
         # Create clear button for processed image file
-        self.button_clear_process = QPushButton('Clear', self)
-        self.button_clear_process.move(605, 270)
+        # self.button_clear_process = QPushButton('Clear', self)
+        # self.button_clear_process.move(605, 270)
 
         # connect button to function on_click
-        self.button_clear_process.clicked.connect(
-            self.on_click_clear_processed)
+        # self.button_clear_process.clicked.connect(
+        #    self.on_click_clear_processed)
 
         # Create save button for processed image file JPEG
         self.button_JPEG = QPushButton('JPEG', self)
@@ -284,7 +284,10 @@ class App(QMainWindow):
         self.reverse_count.move(960, 480)
 
         self.id_status = self.textbox.text()
+        self.textbox.textChanged.connect(self.on_click_clear_OG)
         self.textbox.textChanged.connect(self.get_request)
+
+        self.current_image = ''
         self.show()
 
     @pyqtSlot()
@@ -320,6 +323,7 @@ class App(QMainWindow):
                                           str(pixmap.height()) +
                                           ' pixels')
             self.image_size_label.adjustSize()
+            self.current_image = front_end.encode_file_as_b64(self.fileName)
 
     @pyqtSlot()
     def get_request(self):
@@ -394,33 +398,97 @@ class App(QMainWindow):
         Clears original image space
         :return:
         """
-        pixmap = QPixmap('white.png')
+        patient_id = self.textbox.text()
+        get_server = server + "data/last/" + patient_id
+        try:
+            r = requests.get(get_server)
+        except requests.exceptions.RequestException as e:
+            self.server_status.setText('Get Request Error')
+            return
+        try:
+            r = r.json()
+            if r == 'DNE':
+                self.server_status.setText('Patient Does Not Exist')
+                pixmap = QPixmap('white.png')
+                pixmap_scale = pixmap.scaled(256, 256,
+                                             QtCore.Qt.KeepAspectRatio)
+                self.label_image.setPixmap(pixmap_scale)
+                self.label_image.resize(pixmap_scale.width(),
+                                        pixmap_scale.height())
+                pixmap_scale = pixmap.scaled(400, 400,
+                                             QtCore.Qt.KeepAspectRatio)
+                self.OG_image_histogram.setPixmap(pixmap_scale)
+                self.OG_image_histogram.resize(pixmap_scale.width(),
+                                               pixmap_scale.height())
+                pixmap_scale = pixmap.scaled(256, 256,
+                                             QtCore.Qt.KeepAspectRatio)
+                self.label_image_processed.setPixmap(pixmap_scale)
+                self.label_image_processed.resize(pixmap_scale.width(),
+                                                  pixmap_scale.height())
+                pixmap_scale = pixmap.scaled(400, 400,
+                                             QtCore.Qt.KeepAspectRatio)
+                self.processed_image_histogram.setPixmap(pixmap_scale)
+                self.processed_image_histogram.resize(pixmap_scale.width(),
+                                                      pixmap_scale.height())
+                self.histogram_count.setText('0')
+                self.histogram_count.adjustSize()
+                self.contrast_count.setText('0')
+                self.contrast_count.adjustSize()
+                self.log_count.setText('0')
+                self.log_count.adjustSize()
+                self.reverse_count.setText('0')
+                self.reverse_count.adjustSize()
+                self.button_open.setEnabled(True)
+                return
+
+        except json.decoder.JSONDecodeError:
+            self.server_status.setText('Get Request Decode Error')
+        try:
+            image_bytes = base64.b64decode(r['original'])
+        except TypeError:
+            pass
+            return
+        image_buf = io.BytesIO(image_bytes)
+        i = mpimg.imread(image_buf, format='JPG')
+        fig = plt.figure(frameon=False)
+        plt.imshow(i, interpolation='nearest')
+        plt.axis('off')
+
+        plt.savefig('save_as_jpg.jpg', bbox_inches='tight', pad_inches=0)
+        pixmap = QPixmap('save_as_jpg.jpg')
         pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
         self.label_image.setPixmap(pixmap_scale)
         self.label_image.resize(pixmap_scale.width(), pixmap_scale.height())
+        front_end.get_histogram_values('save_as_jpg.jpg',
+                                       'processed_histogram.jpg')
+        pixmap = QPixmap('processed_histogram.jpg')
         pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
         self.OG_image_histogram.setPixmap(pixmap_scale)
         self.OG_image_histogram.resize(pixmap_scale.width(),
                                        pixmap_scale.height())
-        self.show()
+        self.current_image = r['last_process']
+        image_bytes = base64.b64decode(self.current_image)
+        image_buf = io.BytesIO(image_bytes)
+        i = mpimg.imread(image_buf, format='JPG')
+        fig = plt.figure(frameon=False)
+        plt.imshow(i, interpolation='nearest')
+        plt.axis('off')
 
-    @pyqtSlot()
-    def on_click_clear_processed(self):
-        """
-
-        Clears processed image space
-        :return:
-        """
-        pixmap = QPixmap('white.png')
+        plt.savefig('save_as_jpg.jpg', bbox_inches='tight', pad_inches=0)
+        pixmap = QPixmap('save_as_jpg.jpg')
         pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
         self.label_image_processed.setPixmap(pixmap_scale)
         self.label_image_processed.resize(pixmap_scale.width(),
                                           pixmap_scale.height())
+        front_end.get_histogram_values('save_as_jpg.jpg',
+                                       'processed_histogram.jpg')
+        pixmap = QPixmap('processed_histogram.jpg')
         pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
         self.processed_image_histogram.setPixmap(pixmap_scale)
         self.processed_image_histogram.resize(pixmap_scale.width(),
                                               pixmap_scale.height())
-        self.process_state = 0
+        self.button_open.setEnabled(False)
+        self.process_state = 1
 
     @pyqtSlot()
     def on_click_JPEG(self):
@@ -485,8 +553,12 @@ class App(QMainWindow):
                                                   os.getcwd(),
                                                   "Image files (*.tif)")
         if fileName:
-            save_image = Image.open('save_as_jpg.jpg')
-            save_image.save(fileName, save_all=True)
+            server_tif = server + 'data/stack/<patient_id>'
+            r = requests.get(server_tif)
+            r = r.json()
+            for image in r:
+                save_image = Image.open('save_as_jpg.jpg')
+                save_image.save(fileName, save_all=True)
 
     @pyqtSlot()
     def on_click_HE(self):
@@ -519,7 +591,8 @@ class App(QMainWindow):
         post_dict = {
             'patient_id': str(self.textbox.text()),
             'process_id': 1,
-            'image_file': send_string,
+            'image_file': self.current_image,
+            'original': front_end.encode_file_as_b64(self.fileName),
             'notes': notes
         }
         try:
@@ -529,6 +602,7 @@ class App(QMainWindow):
         try:
             p_image = 'decode.jpg'
             # front_end.decode_b64_image(r.json(), p_image)
+            self.current_image = r.json()
             image_bytes = base64.b64decode(r.json())
             image_buf = io.BytesIO(image_bytes)
             i = mpimg.imread(image_buf, format='JPG')
@@ -593,7 +667,8 @@ class App(QMainWindow):
         post_dict = {
             'patient_id': str(self.textbox.text()),
             'process_id': 2,
-            'image_file': send_string,
+            'image_file': self.current_image,
+            'original': front_end.encode_file_as_b64(self.fileName),
             'notes': notes
         }
         try:
@@ -603,6 +678,7 @@ class App(QMainWindow):
         try:
             p_image = 'decode.jpg'
             # front_end.decode_b64_image(r.json(), p_image)
+            self.current_image = r.json()
             image_bytes = base64.b64decode(r.json())
             image_buf = io.BytesIO(image_bytes)
             i = mpimg.imread(image_buf, format='JPG')
@@ -667,7 +743,8 @@ class App(QMainWindow):
         post_dict = {
             'patient_id': str(self.textbox.text()),
             'process_id': 3,
-            'image_file': send_string,
+            'image_file': self.current_image,
+            'original': front_end.encode_file_as_b64(self.fileName),
             'notes': notes
         }
         try:
@@ -677,6 +754,7 @@ class App(QMainWindow):
         try:
             p_image = 'decode.jpg'
             # front_end.decode_b64_image(r.json(), p_image)
+            self.current_image = r.json()
             image_bytes = base64.b64decode(r.json())
             image_buf = io.BytesIO(image_bytes)
             i = mpimg.imread(image_buf, format='JPG')
@@ -741,7 +819,8 @@ class App(QMainWindow):
         post_dict = {
             'patient_id': str(self.textbox.text()),
             'process_id': 4,
-            'image_file': send_string,
+            'image_file': self.current_image,
+            'original': front_end.encode_file_as_b64(self.fileName),
             'notes': notes
         }
         try:
@@ -751,6 +830,7 @@ class App(QMainWindow):
         try:
             p_image = 'decode.jpg'
             # front_end.decode_b64_image(r.json(), p_image)
+            self.current_image = r.json()
             image_bytes = base64.b64decode(r.json())
             image_buf = io.BytesIO(image_bytes)
             i = mpimg.imread(image_buf, format='JPG')
