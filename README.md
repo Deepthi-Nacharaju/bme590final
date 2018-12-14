@@ -99,7 +99,17 @@ explored to evaluate the development of this feature, though not complete.
 
 #### Setting up the Server
 Running the following command in the terminal will initialize the server:
-    `FLASK_APP=server.py flask run`
+
+    FLASK_APP=server.py flask run
+    
+In addition, in server.py:
+
+    __app__ == '__main__':
+        connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
+        app.run(host="127.0.0.1")
+And in GUI.py:
+
+    server = "http://127.0.0.1:5000/"
 
 ### License
 MIT License
