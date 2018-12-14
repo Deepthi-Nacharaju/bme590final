@@ -9,7 +9,8 @@ from skimage import io as im
 from skimage import io, exposure
 from PIL import Image
 import logging
-logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
+
+# logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 
 app = Flask(__name__)
 connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
@@ -65,7 +66,7 @@ def greeting():
     return jsonify(welcome)
 
 
-def add_new_patient(patient_id):
+def add_new_patient(patient_id, original_file):
     """ Adds new patient to image processor
 
     Returns:
@@ -78,6 +79,11 @@ def add_new_patient(patient_id):
                       contrast_count=0,
                       log_count=0,
                       reverse_count=0)
+    patient.save()
+    try:
+        patient.original.append(original_file)
+    except AttributeError:
+        patient.original = original_file
     patient.save()
     new_patient = 'New Patient Initialized with ID: ' + str(format(patient_id))
     return print(new_patient)
@@ -113,6 +119,23 @@ def get_all_data(patient_id):
     return jsonify(dict_array)
 
 
+@app.route("/data/stack/<patient_id>", methods=["GET"])
+def get_stack(patient_id):
+    """
+
+    :param patient_id: usually patient mrn
+    :return: json dictionary of all image layers
+    """
+    try:
+        u = ImageDB.objects.raw({"_id": str(format(patient_id))}).first()
+        dict_array = {
+            "images": u.images,
+        }
+    except ImageDB.DoesNotExist:
+        dict_array = 'DNE'
+    return jsonify(dict_array)
+
+
 @app.route("/data/<patient_id>", methods=["GET"])
 def get_data(patient_id):
     """Returns all the stored information for a patient
@@ -132,6 +155,29 @@ def get_data(patient_id):
             "contrast_count": u.contrast_count,
             "log_count": u.log_count,
             "reverse_count": u.reverse_count,
+        }
+    except ImageDB.DoesNotExist:
+        dict_array = 'DNE'
+    return jsonify(dict_array)
+
+
+@app.route("/data/last/<patient_id>", methods=["GET"])
+def get_last(patient_id):
+    """Returns all the stored information for a patient
+    as a JSON dictionary
+
+    Args:
+        patient_id (str): string specifying patient id.
+
+    Returns:
+         dict_array (dict): dictionary of all stored data
+
+    """
+    try:
+        u = ImageDB.objects.raw({"_id": str(patient_id)}).first()
+        dict_array = {
+            "original": u.original[0],
+            "last_process": u.images[-1],
         }
     except ImageDB.DoesNotExist:
         dict_array = 'DNE'
@@ -158,12 +204,14 @@ def new_image():
     process_id = r['process_id']
     image_file_encoded = r['image_file']
     notes = r['notes']
+    original = r['original']
+    image_file = decode_b64_image(image_file_encoded)
     try:
         patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     except ImageDB.DoesNotExist:
-        new = add_new_patient(patient_id)
+        print('Could Not find user')
+        new = add_new_patient(patient_id, image_file)
         logging.debug(new)
-    image_file = decode_b64_image(image_file_encoded)
     if process_id is 1:
         processor = 'Histogram Equalization'
         patient.histogram_count += 1
@@ -190,13 +238,17 @@ def new_image():
         logging.debug(processor)
     else:
         return jsonify('Not a valid ID')
+    try:
+        patient.original.append(original)
+    except AttributeError:
+        patient.original = original
     patient.save()
     out = encode_file_as_b64(processed_image)
-    save_image(patient_id, processor, out, image_file_encoded, notes)
+    save_image(patient_id, processor, out, notes)
     return jsonify(out)
 
 
-def save_image(patient_id, processor, image_file, original, notes):
+def save_image(patient_id, processor, image_file, notes):
     """
 
     :param patient_id: Usually mrn number
@@ -219,10 +271,6 @@ def save_image(patient_id, processor, image_file, original, notes):
         patient.processor.append(processor)
     except AttributeError:
         patient.processor = processor
-    try:
-        patient.original.append(original)
-    except AttributeError:
-        patient.original = original
     try:
         patient.notes.append(notes)
     except AttributeError:
@@ -260,6 +308,11 @@ def encode_file_as_b64(image_array):
 
 
 def make_gray(pil_image):
+    """
+
+    :param pil_image: PIL Image to be processed
+    :return: gray scale image
+    """
     image = Image.fromarray(pil_image)
     gray_scale = image.convert('LA')
     # gray = np.array(gray_scale)
@@ -268,6 +321,11 @@ def make_gray(pil_image):
 
 
 def is_gray(pil_image):
+    """
+
+    :param pil_image: PIL image to be processed
+    :return: if image is grayscale or not
+    """
     # https://stackoverflow.com/questions
     # /23660929/how-to-check-whether-a-jpeg-image-is-color-or-gray-scale-using-only-python-stdli
     image = Image.fromarray(pil_image)
@@ -282,6 +340,11 @@ def is_gray(pil_image):
 
 
 def histogram_equalization(pil_image):
+    """
+
+    :param pil_image: PIL Image to be processed
+    :return: processed image that has histogram equalization
+    """
     if not is_gray(pil_image):
         gray = make_gray(pil_image)
         gray.save('temp.png')
@@ -295,6 +358,11 @@ def histogram_equalization(pil_image):
 
 
 def contrast_stretch(pil_image):
+    """
+
+    :param pil_image: PIL Image to be processed
+    :return: Image that has been contrast stretched
+    """
     p2 = np.percentile(pil_image, 2)
     p98 = np.percentile(pil_image, 98)
     rescaled_image = exposure.rescale_intensity(pil_image, in_range=(p2, p98))
@@ -303,6 +371,11 @@ def contrast_stretch(pil_image):
 
 
 def log_compression(pil_image):
+    """
+
+    :param pil_image: PIL image to be processed
+    :return: Image that has been log compressed
+    """
     # Adapted from:
     # https://homepages.inf.ed.ac.uk/rbf/HIPR2/pixlog.htm
     c = 255 / (np.log10(1 + np.amax(pil_image)))
