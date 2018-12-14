@@ -250,11 +250,6 @@ def decode_b64_image(base64_string):
     temp.write(base64.b64decode(base64_string))
     temp.close()
     reconstructed_image = im.imread("temporary.png")
-    #    image_bytes = base64.b64decode(base64_string)
-    #    image_buf = io.BytesIO(image_bytes)
-    #    i = mpimg.imread(image_buf, format='JPG')
-    #    plt.imshow(i, interpolation='nearest')
-    #    plt.show()
     return reconstructed_image
 
 

@@ -11,6 +11,7 @@ import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.pyplot as plt
 import colorsys
 from PIL import Image
+from skimage import io as im
 
 
 def encode_file_as_b64(image_path):
@@ -26,36 +27,11 @@ def decode_b64_image(base64_string, save_name):
     i = mpimg.imread(image_buf, format='JPG')
     plt.imshow(i, interpolation='nearest')
     plt.savefig(save_name)
-    return
-
-
-# def decode_b64_image(base64_string):
-#     """
-#     :param base64_string:
-#     :return reconstructed_image: PIL image
-#     """
-#     from skimage import io as im
-#     temp = open("temporary.png", "wb")
-#     temp.write(base64.b64decode(base64_string))
-#     temp.close()
-#     reconstructed_image = im.imread("temporary.png")
-# #    image_bytes = base64.b64decode(base64_string)
-# #    image_buf = io.BytesIO(image_bytes)
-# #    i = mpimg.imread(image_buf, format='JPG')
-# #    plt.imshow(i, interpolation='nearest')
-# #    plt.show()
-#     return reconstructed_image
-#
-#
-# def encode_file_as_b64(image_array):
-#     image = Image.fromarray(image_array)
-#     buffer = io.BytesIO()
-#     image.save(buffer, format="JPEG")
-#     image_bytes = buffer.getvalue()
-#     image_string = base64.b64encode(image_bytes.decode("utf-8"))
-# #    with open(image_path, "rb") as image_file:
-# #        return base64.b64encode(image_file.read())
-#     return image_string
+    temp = open("temporary.png", "wb")
+    temp.write(image_bytes)
+    temp.close()
+    reconstructed_image = im.imread("temporary.png")
+    return reconstructed_image
 
 
 def read_jpg(pic_str):
@@ -100,7 +76,7 @@ def get_histogram_values(image_name, save_name):
     plt.ylabel('Frequency')
     plt.xlabel('RGB')
     plt.savefig(save_name, bbox_inches='tight', pad_inches=0)
-    return
+    return r_list, g_list, b_list
 
 
 if __name__ == "__main__":
