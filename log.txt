@@ -1,37 +1,134 @@
 INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:17] "GET / HTTP/1.1" 200 -
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:22] "GET /data/6 HTTP/1.1" 200 -
-DEBUG:root:None
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:55:25] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:55:35] "GET /data/1 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:55:39] "GET /data/last/1 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:55:40] "GET /data/10 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:55:40] "GET /data/last/10 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:55:40] "GET /data/100 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:55:40] "GET /data/last/100 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:55:51] "GET /data/10 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:55:51] "GET /data/last/10 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:56:01] "GET /data/101 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:56:01] "GET /data/last/101 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:58:56] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:58:58] "GET /data/last/9 HTTP/1.1" 200 -
 ERROR:flask.app:Exception on /new_image [POST]
 Traceback (most recent call last):
-  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymodm/queryset.py", line 127, in first
+    return next(iter(self.limit(-1)))
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/deepthinacharaju/Documents/Duke/Class/Fall 2018/BME590/bme590final/server.py", line 191, in new_image
+    patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymodm/queryset.py", line 129, in first
+    raise self._model.DoesNotExist()
+server.DoesNotExist
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/app.py", line 2292, in wsgi_app
     response = self.full_dispatch_request()
-  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/app.py", line 1815, in full_dispatch_request
     rv = self.handle_user_exception(e)
-  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/app.py", line 1718, in handle_user_exception
     reraise(exc_type, exc_value, tb)
-  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\_compat.py", line 35, in reraise
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/_compat.py", line 35, in reraise
     raise value
-  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/app.py", line 1813, in full_dispatch_request
     rv = self.dispatch_request()
-  File "C:\Users\Ashish Vankara\Anaconda3\envs\imageprocessor_environment\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/app.py", line 1799, in dispatch_request
     return self.view_functions[rule.endpoint](**req.view_args)
-  File "C:/Users/Ashish Vankara/bme590final/server.py", line 169, in new_image
-    patient.histogram_count += 1
-UnboundLocalError: local variable 'patient' referenced before assignment
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:31] "POST /new_image HTTP/1.1" 500 -
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:31] "GET /data/6 HTTP/1.1" 200 -
+  File "/Users/deepthinacharaju/Documents/Duke/Class/Fall 2018/BME590/bme590final/server.py", line 193, in new_image
+    new = add_new_patient(patient_id, image_file)
+  File "/Users/deepthinacharaju/Documents/Duke/Class/Fall 2018/BME590/bme590final/server.py", line 86, in add_new_patient
+    patient.save()
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymodm/base/models.py", line 476, in save
+    self.to_son(), upsert=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymongo/collection.py", line 925, in replace_one
+    collation=collation, session=session),
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymongo/collection.py", line 851, in _update_retryable
+    _update, session)
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymongo/mongo_client.py", line 1248, in _retryable_write
+    return self._retry_with_session(retryable, func, s, None)
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymongo/mongo_client.py", line 1201, in _retry_with_session
+    return func(session, sock_info, retryable)
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymongo/collection.py", line 847, in _update
+    retryable_write=retryable_write)
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymongo/collection.py", line 817, in _update
+    retryable_write=retryable_write).copy()
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymongo/pool.py", line 584, in command
+    self._raise_connection_failure(error)
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymongo/pool.py", line 745, in _raise_connection_failure
+    raise error
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymongo/pool.py", line 579, in command
+    unacknowledged=unacknowledged)
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymongo/network.py", line 114, in command
+    codec_options, ctx=compression_ctx)
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/pymongo/message.py", line 679, in _op_msg
+    flags, command, identifier, docs, check_keys, opts)
+bson.errors.InvalidDocument: Cannot encode object: array([[[255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255],
+        ...,
+        [255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255]],
+
+       [[255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255],
+        ...,
+        [255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255]],
+
+       [[255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255],
+        ...,
+        [255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255]],
+
+       ...,
+
+       [[219, 216, 209],
+        [218, 215, 208],
+        [218, 215, 208],
+        ...,
+        [199, 195, 184],
+        [200, 196, 185],
+        [204, 200, 189]],
+
+       [[220, 217, 210],
+        [219, 216, 209],
+        [217, 214, 207],
+        ...,
+        [199, 195, 184],
+        [200, 196, 185],
+        [204, 200, 189]],
+
+       [[222, 219, 212],
+        [221, 218, 211],
+        [218, 215, 208],
+        ...,
+        [201, 197, 186],
+        [202, 198, 187],
+        [202, 198, 187]]], dtype=uint8)
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:59:08] "POST /new_image HTTP/1.1" 500 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:59:08] "GET /data/9 HTTP/1.1" 200 -
 DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
 DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 65536
 DEBUG:root:Histogram Equalization was conducted
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:33] "POST /new_image HTTP/1.1" 200 -
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:34] "GET /data/6 HTTP/1.1" 200 -
-DEBUG:root:Contrast Switch was conducted
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:48] "POST /new_image HTTP/1.1" 200 -
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:39:49] "GET /data/6 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:59:21] "POST /new_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:59:22] "GET /data/9 HTTP/1.1" 200 -
+DEBUG:PIL.PngImagePlugin:STREAM b'IHDR' 16 13
+DEBUG:PIL.PngImagePlugin:STREAM b'IDAT' 41 65536
 DEBUG:root:Log Compression was conducted
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:40:06] "POST /new_image HTTP/1.1" 200 -
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:40:08] "GET /data/6 HTTP/1.1" 200 -
-DEBUG:root:Reverse Video was conducted
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:40:20] "POST /new_image HTTP/1.1" 200 -
-INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 22:40:22] "GET /data/6 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:59:51] "POST /new_image HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [13/Dec/2018 23:59:53] "GET /data/9 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Dec/2018 00:00:19] "GET /data/last/ HTTP/1.1" 404 -
