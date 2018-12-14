@@ -38,7 +38,7 @@ class App(QMainWindow):
 
         Initializes the User Interface with all
         of the appropriate labels and buttons
-        :return:
+
         """
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
@@ -296,8 +296,9 @@ class App(QMainWindow):
         """
 
         Opens File Dialog to choose image to be processed
-        :return:
+
         """
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         current = os.getcwd()
@@ -333,7 +334,7 @@ class App(QMainWindow):
 
         Makes get request when patient id is changed or when image is processed
         to update the values in the bottom right of the GUI
-        :return:
+
         """
         patient_id = self.textbox.text()
         if not patient_id:
@@ -372,8 +373,10 @@ class App(QMainWindow):
         """
 
         Opens Error Window if image is not chosen
-        :return:
+
+
         """
+
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Critical)
         msg.setText('Must open an image')
@@ -385,7 +388,7 @@ class App(QMainWindow):
         """
 
         Opens error window when patient ID is not provided
-        :return:
+
         """
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Critical)
@@ -397,9 +400,9 @@ class App(QMainWindow):
     def on_click_clear_OG(self):
         """
 
-        Updates image spaces with last procssed image
+        Updates image spaces with last processed image
         for the specified patient ID
-        :return:
+
         """
         patient_id = self.textbox.text()
         if not patient_id:
@@ -503,7 +506,7 @@ class App(QMainWindow):
         """
 
         Saves image as a JPEG
-        :return:
+
         """
         if self.process_state == 0:
             msg = QMessageBox(self)
@@ -525,7 +528,7 @@ class App(QMainWindow):
         """
 
         Saves image as a PNG
-        :return:
+
         """
         if self.process_state == 0:
             msg = QMessageBox(self)
@@ -547,7 +550,7 @@ class App(QMainWindow):
         """
 
         Saves image as a TIFF
-        :return:
+
         """
         if self.process_state == 0:
             msg = QMessageBox(self)
@@ -574,7 +577,7 @@ class App(QMainWindow):
 
         Applies Histogram Equalization to original
         image and makes a POST request to the server
-        :return:
+
         """
         one_time = datetime.datetime.now()
         server_HE = server + 'new_image'
@@ -648,7 +651,7 @@ class App(QMainWindow):
 
         Applies Contrast Stretching to original
         image and makes a POST request to the server
-        :return:
+
         """
         if not self.notes.toPlainText():
             notes = 'No Additional Notes'
@@ -722,7 +725,7 @@ class App(QMainWindow):
 
         Applies Log Compression to original image and
         makes a POST request to the server
-        :return:
+
         """
         if not self.notes.toPlainText():
             notes = 'No Additional Notes'
@@ -796,7 +799,7 @@ class App(QMainWindow):
 
         Applies Reverse Video to original image and
         makes a POST request to the server
-        :return:
+
         """
         if not self.notes.toPlainText():
             notes = 'No Additional Notes'

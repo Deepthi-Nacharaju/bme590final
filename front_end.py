@@ -8,6 +8,18 @@ from skimage import io as im
 
 
 def encode_file_as_b64(image_path):
+    """
+
+    This function takes in an image path and encodes
+    the specified image into its base64 representation.
+
+    Args:
+        image_path (str): image name
+
+    Returns:
+        (str): en64: base64 representation of image
+
+    """
     with open(image_path, "rb") as image_file:
         en64 = base64.b64encode(image_file.read())
         en64 = en64.decode("utf-8")
@@ -15,6 +27,20 @@ def encode_file_as_b64(image_path):
 
 
 def decode_b64_image(base64_string, save_name):
+    """
+
+    This function takes in a base64 string and name, decodes it
+    into and saves the image for display.
+
+    Args:
+        base64_string (str): specifies base64
+            representation of an image.
+        save_name (str): name of image to be saved.
+
+    Returns:
+        PIL image object (array): reconstructed_image
+
+    """
     image_bytes = base64.b64decode(base64_string)
     image_buf = io.BytesIO(image_bytes)
     i = mpimg.imread(image_buf, format='JPG')
@@ -28,6 +54,18 @@ def decode_b64_image(base64_string, save_name):
 
 
 def read_jpg(pic_str):
+    """
+
+    This function takes in a JPG image name and
+    reads in the data.
+
+    Args:
+        pic_string (str): .JPG image name
+
+    Returns:
+        (bytes): pic_data: image in its bytes representation.
+
+    """
     with open(pic_str, 'rb') as pic:
         pic_data = pic.read()
         pic_data = str(pic_data)
@@ -35,6 +73,19 @@ def read_jpg(pic_str):
 
 
 def get_histogram_values(image_name, save_name):
+    """
+
+    This function takes in an image name, save name,
+    and generates a histogram plot of the image.
+
+    Args:
+        image_name (str): image file name
+        save_name (str): file name under which histogram
+            plot will be stored.
+
+    Returns:
+        (list): r_list, g_list, b_list
+    """
     # (1) Import the file to be analyzed!
     img_file = Image.open(image_name)
     img = img_file.load()

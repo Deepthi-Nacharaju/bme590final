@@ -17,11 +17,13 @@ connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
 
 
 class ImageDB(MongoModel):
-    """This class initializes the stored data fields for the image processor
+    """
+
+    This class initializes the stored data fields for the image processor
     MongoDB database.
 
     Attributes:
-        patient_id (str): unique patient mrn.
+        patient_id (str): unique patient number.
         original (list): associated original image for each upload
         histogram_count (int): number of times histogram
             equalization was conducted.
@@ -52,13 +54,13 @@ class ImageDB(MongoModel):
 
 @app.route("/", methods=["GET"])
 def greeting():
-    """ Welcomes user to image processor
+    """
 
-    This function returns "Welcome to the image processor"
+    Returns "Welcome to the image processor"
     and confirms connection with the web server.
 
     Returns:
-        welcome (str): "Welcome to the image processor"
+        (str): welcome: "Welcome to the image processor"
 
     """
 
@@ -67,10 +69,13 @@ def greeting():
 
 
 def add_new_patient(patient_id, original_file):
-    """ Adds new patient to image processor
+    """
+
+    Adds a new patient to the image processor
+    and initializes image processor counts.
 
     Returns:
-        new_patient (str): confirmation of new patient's
+        (str): confirmation of new patient's
             initialization
 
     """
@@ -91,14 +96,16 @@ def add_new_patient(patient_id, original_file):
 
 @app.route("/data/all/<patient_id>", methods=["GET"])
 def get_all_data(patient_id):
-    """Returns stored counts information for a patient
+    """
+
+    Returns stored counts information for a patient
     as a JSON dictionary
 
     Args:
         patient_id (str): string specifying patient id.
 
     Returns:
-         dict_array (dict): dictionary of all stored data
+        (dict): dict_array: dictionary of all stored data
 
     """
     try:
@@ -123,8 +130,15 @@ def get_all_data(patient_id):
 def get_stack(patient_id):
     """
 
-    :param patient_id: usually patient mrn
-    :return: json dictionary of all image layers
+    Returns a list of all images processed for a
+    specified patient ID
+
+    Args:
+        patient_id (str): usually patient mrn.
+
+    Returns:
+        (dict): dict_array: dictionary containing list of images.
+
     """
     try:
         u = ImageDB.objects.raw({"_id": str(format(patient_id))}).first()
@@ -138,14 +152,16 @@ def get_stack(patient_id):
 
 @app.route("/data/<patient_id>", methods=["GET"])
 def get_data(patient_id):
-    """Returns all the stored information for a patient
-    as a JSON dictionary
+    """
+
+    Returns the stored image processing counts for a
+    patient as a JSON dictionary
 
     Args:
         patient_id (str): string specifying patient id.
 
     Returns:
-         dict_array (dict): dictionary of all stored data
+         (dict): dict_array: dictionary of image processor counts.
 
     """
     try:
@@ -163,14 +179,16 @@ def get_data(patient_id):
 
 @app.route("/data/last/<patient_id>", methods=["GET"])
 def get_last(patient_id):
-    """Returns all the stored information for a patient
-    as a JSON dictionary
+    """
+
+    Returns the original and most recent images in an image
+    processing tree.
 
     Args:
         patient_id (str): string specifying patient id.
 
     Returns:
-         dict_array (dict): dictionary of all stored data
+        (dict): dict_array: dictionary of images.
 
     """
     try:
@@ -186,17 +204,18 @@ def get_last(patient_id):
 
 @app.route("/new_image", methods=["POST"])
 def new_image():
-    """This function receives a JSON request with
-     an image and applies the specified image
-     processing algorithm.
+    """
+
+    Receives a JSON request with an image and
+    applies the specified image processing algorithm.
 
     Args:
         patient_id (str): specifies patient id.
-        process_id (str): specifies type of algorithm
-        image_file (str): image as b64 string
+        process_id (str): specifies type of algorithm.
+        image_file (str): image as b64 string.
 
     Returns:
-         confirmation (str): upload confirmation of image
+         (str): confirmation: upload confirmation of image
 
     """
     r = request.get_json()
@@ -251,12 +270,17 @@ def new_image():
 def save_image(patient_id, processor, image_file, notes):
     """
 
-    :param patient_id: Usually mrn number
-    :param processor: Type of processor applied to original image
-    :param image_file: Processed Image file to be saved
-    :param original: Original Image file to be saved
-    :param notes: Any notes the user would like additionally saved
-    :return:
+    This function updates the database by appending an image,
+    processor type, timestamp, and notes for a specific patient_id.
+
+    Args:
+        patient_id (str): specifies patient id.
+        processor (str): specifies type of algorithm.
+        image_file (str): processed image file to be saved.
+        notes (str): Any notes the user would like additionally saved.
+
+    Returns:
+
     """
     patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     try:
@@ -281,8 +305,17 @@ def save_image(patient_id, processor, image_file, notes):
 
 def decode_b64_image(base64_string):
     """
-    :param base64_string:
-    :return reconstructed_image: PIL image
+
+    This function takes in a base64 string and decodes it into an
+    image array.
+
+    Args:
+        base64_string (str): specifies base64
+            representation of an image.
+
+    Returns:
+        PIL image object (array): reconstructed_image
+
     """
     temp = open("temporary.png", "wb")
     temp.write(base64.b64decode(base64_string))
@@ -294,8 +327,15 @@ def decode_b64_image(base64_string):
 def encode_file_as_b64(image_array):
     """
 
-    :param image_array: PIL Image
-    :return: base64_string
+    This function takes in an image array and encodes it into its
+    base64 representation.
+
+    Args:
+        image_array : PIL image
+
+    Returns:
+        (str): image_string: base64 representation of image
+
     """
     image = Image.fromarray(image_array)
     buffer = io2.BytesIO()
@@ -310,8 +350,15 @@ def encode_file_as_b64(image_array):
 def make_gray(pil_image):
     """
 
-    :param pil_image: PIL Image to be processed
-    :return: gray scale image
+    This function takes in an image array and converts it to
+    gray scale.
+
+    Args:
+        PIL_array : image array
+
+    Returns:
+        PIL image object (array) : processed_image: gray scale image
+
     """
     image = Image.fromarray(pil_image)
     gray_scale = image.convert('LA')
@@ -323,11 +370,18 @@ def make_gray(pil_image):
 def is_gray(pil_image):
     """
 
-    :param pil_image: PIL image to be processed
-    :return: if image is grayscale or not
+    This function takes in an image array and determines
+    if it's in gray scale. Adapted from: joaoricardo000
+    on stackoverflow.com
+
+    Args:
+        PIL_array : image array
+
+    Returns:
+        (bool): gray scale: if the image is gray scale.
+
     """
-    # https://stackoverflow.com/questions
-    # /23660929/how-to-check-whether-a-jpeg-image-is-color-or-gray-scale-using-only-python-stdli
+
     image = Image.fromarray(pil_image)
     imageRGB = image.convert('RGB')
     w, h = imageRGB.size
@@ -342,8 +396,16 @@ def is_gray(pil_image):
 def histogram_equalization(pil_image):
     """
 
-    :param pil_image: PIL Image to be processed
-    :return: processed image that has histogram equalization
+    This function takes in an image array, determines if it's gray scale
+    (and converts if it isn't), and performs histogram equalization.
+
+    Args:
+        pil_image : image array
+
+    Returns:
+        PIL image object (array): processed_image: image array with
+            histogram equalization applied.
+
     """
     if not is_gray(pil_image):
         gray = make_gray(pil_image)
@@ -360,8 +422,16 @@ def histogram_equalization(pil_image):
 def contrast_stretch(pil_image):
     """
 
-    :param pil_image: PIL Image to be processed
-    :return: Image that has been contrast stretched
+    This function takes in an image array and performs
+    contrast stretching.
+
+    Args:
+        pil_image : image array
+
+    Returns:
+        PIL image object (array): processed_image: image array
+            with contrast stretching applied.
+
     """
     p2 = np.percentile(pil_image, 2)
     p98 = np.percentile(pil_image, 98)
@@ -373,8 +443,17 @@ def contrast_stretch(pil_image):
 def log_compression(pil_image):
     """
 
-    :param pil_image: PIL image to be processed
-    :return: Image that has been log compressed
+    This function takes in an image array and performs
+    log compression.
+    Adapted from: https://homepages.inf.ed.ac.uk/rbf/HIPR2/pixlog.htm
+
+    Args:
+        pil_image : image array
+
+    Returns:
+        PIL image object (array): processed_image: image array with
+            log compression applied.
+
     """
     # Adapted from:
     # https://homepages.inf.ed.ac.uk/rbf/HIPR2/pixlog.htm
@@ -386,13 +465,17 @@ def log_compression(pil_image):
 
 
 def reverse_video(pil_image):
-    """This function reverses the colors in an image
+    """
+
+    This function takes in an image array and performs
+    reverse video by subtracting each pixel from 255.
 
     Args:
-        pil_image (array): PIL image object
+        pil_image : image array
 
     Returns:
-        processed_image (array): PIL image object
+        PIL image object (array): processed_image: image array with
+            reverse video applied.
 
     """
     for pixel in np.nditer(pil_image, op_flags=['readwrite']):
