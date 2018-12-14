@@ -19,7 +19,7 @@ from matplotlib import pyplot as plt
 import os
 from PIL import Image
 
-server = "http://127.0.0.1:5000/"
+server = "http://vcm-7301.vm.duke.edu:5000/"
 
 
 class App(QMainWindow):
