@@ -302,8 +302,8 @@ class App(QMainWindow):
         options |= QFileDialog.DontUseNativeDialog
         current = os.getcwd()
         fileName, _ = QFileDialog.getOpenFileName(self, "Open Image", current,
-                                                   "Image files (*.jpg *.png)",
-                                                   options=options)
+                                                  "Image files (*.jpg *.png)",
+                                                  options=options)
         if fileName:
             self.fileName = fileName
             pixmap = QPixmap(fileName)
