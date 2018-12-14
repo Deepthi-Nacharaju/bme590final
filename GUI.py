@@ -77,7 +77,7 @@ class App(QMainWindow):
 
         # Create Open button to open image file
         self.button_open = QPushButton('Open', self)
-        self.button_open.move(125, 270)
+        self.button_open.move(125, 275)
         self.button_open.setEnabled(False)
         # Create clear button for OG image file
         # self.button_clear = QPushButton('Clear', self)
@@ -237,7 +237,7 @@ class App(QMainWindow):
         # Image Size in Pixels
         self.image_size_label = QLabel(self)
         self.image_size_label.setText('Image Size:')
-        self.image_size_label.move(135, 300)
+        self.image_size_label.move(135, 310)
         self.image_size_label.adjustSize()
         self.fileName = ''
         try:
@@ -288,7 +288,26 @@ class App(QMainWindow):
         self.textbox.textChanged.connect(self.get_request)
 
         self.current_image = ''
+        self.active_image = ''
         self.original = ''
+        self.histogram_count_value = []
+        self.contrast_count_value = []
+        self.log_count_value = []
+        self.reverse_count_value =[]
+        self.index = 0
+
+        # Scroll Buttons
+        self.right_scroll = QPushButton('->', self)
+        self.right_scroll.move(230, 250)
+        self.right_scroll.resize(50, 25)
+        self.right_scroll.clicked.connect(self.on_click_right_scroll)
+        self.right_scroll.clicked.connect(self.get_request)
+
+        self.left_scroll = QPushButton('<-', self)
+        self.left_scroll.move(175, 250)
+        self.left_scroll.resize(50, 25)
+        self.left_scroll.clicked.connect(self.on_click_left_scroll)
+        self.left_scroll.clicked.connect(self.get_request)
         self.show()
 
     @pyqtSlot()
@@ -301,18 +320,26 @@ class App(QMainWindow):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         current = os.getcwd()
-        fileName, _ = QFileDialog.getOpenFileName(self, "Open Image", current,
+        fileName, _ = QFileDialog.getOpenFileNames(self, "Open Image", current,
                                                   "Image files (*.jpg *.png)",
                                                   options=options)
         if fileName:
             self.fileName = fileName
-            pixmap = QPixmap(fileName)
+            if len(fileName) > 1:
+                pixmap = QPixmap(fileName[0])
+                pic_list = list()
+                for x in range(len(fileName)):
+                    pic_list.append(front_end.encode_file_as_b64(self.fileName[x]))
+                self.current_image = pic_list
+            else:
+                pixmap = QPixmap(fileName)
+                self.current_image = front_end.encode_file_as_b64(self.fileName)
             pixmap_scale = pixmap.scaled(256, 256,
                                          QtCore.Qt.KeepAspectRatio)
             self.label_image.setPixmap(pixmap_scale)
             self.label_image.resize(pixmap_scale.width(),
                                     pixmap_scale.height())
-            front_end.get_histogram_values(fileName, 'original_histogram.jpg')
+            front_end.get_histogram_values(fileName[0], 'original_histogram.jpg')
             pixmap = QPixmap('original_histogram.jpg')
             pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
             self.OG_image_histogram.setPixmap(pixmap_scale)
@@ -324,7 +351,6 @@ class App(QMainWindow):
                                           str(pixmap.height()) +
                                           ' pixels')
             self.image_size_label.adjustSize()
-            self.current_image = front_end.encode_file_as_b64(self.fileName)
             self.original = self.current_image
 
     @pyqtSlot()
@@ -353,16 +379,34 @@ class App(QMainWindow):
                 self.server_status.setText(add +
                                            'Patient Does Not Exist')
                 return
-            self.histogram_count.setText(str(r['histogram_count']))
-            self.histogram_count.adjustSize()
-            self.contrast_count.setText(str(r['contrast_count']))
-            self.contrast_count.adjustSize()
-            self.log_count.setText(str(r['log_count']))
-            self.log_count.adjustSize()
-            self.reverse_count.setText(str(r['reverse_count']))
-            self.reverse_count.adjustSize()
-            self.server_status.setText(add +
-                                       'Get Request Successful')
+            try:
+                if len(r['histogram_count']) > 1:
+                    self.histogram_count.setText(str(r['histogram_count'][self.index]))
+                    self.histogram_count.adjustSize()
+                    self.contrast_count.setText(str(r['contrast_count'][self.index]))
+                    self.contrast_count.adjustSize()
+                    self.log_count.setText(str(r['log_count'][self.index]))
+                    self.log_count.adjustSize()
+                    self.reverse_count.setText(str(r['reverse_count'][self.index]))
+                    self.reverse_count.adjustSize()
+                    self.server_status.setText(add +
+                                               'Get Request Successful')
+            except TypeError:
+                self.histogram_count.setText(str(r['histogram_count']))
+                self.histogram_count.adjustSize()
+                self.contrast_count.setText(str(r['contrast_count']))
+                self.contrast_count.adjustSize()
+                self.log_count.setText(str(r['log_count']))
+                self.log_count.adjustSize()
+                self.reverse_count.setText(str(r['reverse_count']))
+                self.reverse_count.adjustSize()
+                self.server_status.setText(add +
+                                           'Get Request Successful')
+            self.histogram_count_value = r['histogram_count']
+            self.contrast_count_value = r['contrast_count']
+            self.log_count_value = r['log_count']
+            self.reverse_count_value = r['reverse_count']
+
         except json.decoder.JSONDecodeError:
             self.server_status.setText(add +
                                        'Get Request Decode Error')
@@ -450,12 +494,13 @@ class App(QMainWindow):
 
         except json.decoder.JSONDecodeError:
             self.server_status.setText('Get Request Decode Error')
-        try:
+        print(len(r['original']))
+        if len(r['original']) > 1:
+            image_bytes = base64.b64decode(r['original'][0])
+        else:
             image_bytes = base64.b64decode(r['original'])
-            self.original = r['original']
-        except TypeError:
-            pass
-            return
+        self.original = r['original']
+
         image_buf = io.BytesIO(image_bytes)
         i = mpimg.imread(image_buf, format='JPG')
         fig = plt.figure(frameon=False)
@@ -475,7 +520,10 @@ class App(QMainWindow):
         self.OG_image_histogram.resize(pixmap_scale.width(),
                                        pixmap_scale.height())
         self.current_image = r['last_process']
-        image_bytes = base64.b64decode(self.current_image)
+        if len(r['last_process']) > 1:
+            image_bytes = base64.b64decode(self.current_image[0])
+        else:
+            image_bytes = base64.b64decode(self.current_image)
         image_buf = io.BytesIO(image_bytes)
         i = mpimg.imread(image_buf, format='JPG')
         fig = plt.figure(frameon=False)
@@ -601,6 +649,8 @@ class App(QMainWindow):
             'original': self.original,
             'notes': notes
         }
+        if len(post_dict['original']) > 1:
+            post_dict['index'] = self.index
         try:
             r = requests.post(server_HE, json=post_dict)
         except requests.exceptions.RequestException as e:
@@ -609,7 +659,10 @@ class App(QMainWindow):
             p_image = 'decode.jpg'
             # front_end.decode_b64_image(r.json(), p_image)
             self.current_image = r.json()
-            image_bytes = base64.b64decode(r.json())
+            if len(self.current_image) > 1:
+                image_bytes = base64.b64decode(self.current_image[self.index])
+            else:
+                image_bytes = base64.b64decode(self.current_image)
             image_buf = io.BytesIO(image_bytes)
             i = mpimg.imread(image_buf, format='JPG')
             fig = plt.figure(frameon=False)
@@ -675,6 +728,8 @@ class App(QMainWindow):
             'original': self.original,
             'notes': notes
         }
+        if len(post_dict['original']) > 1:
+            post_dict['index'] = self.index
         try:
             r = requests.post(server_HE, json=post_dict)
         except requests.exceptions.RequestException as e:
@@ -683,7 +738,7 @@ class App(QMainWindow):
             p_image = 'decode.jpg'
             # front_end.decode_b64_image(r.json(), p_image)
             self.current_image = r.json()
-            image_bytes = base64.b64decode(r.json())
+            image_bytes = base64.b64decode(self.current_image[self.index])
             image_buf = io.BytesIO(image_bytes)
             i = mpimg.imread(image_buf, format='JPG')
             fig = plt.figure(frameon=False)
@@ -749,6 +804,8 @@ class App(QMainWindow):
             'original': self.original,
             'notes': notes
         }
+        if len(post_dict['original']) > 1:
+            post_dict['index'] = self.index
         try:
             r = requests.post(server_HE, json=post_dict)
         except requests.exceptions.RequestException as e:
@@ -757,7 +814,9 @@ class App(QMainWindow):
             p_image = 'decode.jpg'
             # front_end.decode_b64_image(r.json(), p_image)
             self.current_image = r.json()
-            image_bytes = base64.b64decode(r.json())
+            print('Length of current image array:')
+            print(len(self.current_image))
+            image_bytes = base64.b64decode(self.current_image[self.index])
             image_buf = io.BytesIO(image_bytes)
             i = mpimg.imread(image_buf, format='JPG')
             fig = plt.figure(frameon=False)
@@ -823,6 +882,8 @@ class App(QMainWindow):
             'original': self.original,
             'notes': notes
         }
+        if len(post_dict['original']) > 1:
+            post_dict['index'] = self.index
         try:
             r = requests.post(server_HE, json=post_dict)
         except requests.exceptions.RequestException as e:
@@ -831,7 +892,7 @@ class App(QMainWindow):
             p_image = 'decode.jpg'
             # front_end.decode_b64_image(r.json(), p_image)
             self.current_image = r.json()
-            image_bytes = base64.b64decode(r.json())
+            image_bytes = base64.b64decode(self.current_image[self.index])
             image_buf = io.BytesIO(image_bytes)
             i = mpimg.imread(image_buf, format='JPG')
             fig = plt.figure(frameon=False)
@@ -863,6 +924,61 @@ class App(QMainWindow):
             self.process_state = 1
         except json.decoder.JSONDecodeError:
             self.server_status.setText('Server Returned Nothing')
+
+
+    @pyqtSlot()
+    def on_click_right_scroll(self):
+        if len(self.original) > 1:
+            self.index += 1
+            if self.index > len(self.current_image) - 1:
+                self.index -= 1
+                return
+            pixmap = QPixmap(self.fileName[self.index])
+            pixmap_scale = pixmap.scaled(256, 256,
+                                         QtCore.Qt.KeepAspectRatio)
+            self.label_image.setPixmap(pixmap_scale)
+            self.label_image.resize(pixmap_scale.width(),
+                                    pixmap_scale.height())
+            print(self.index)
+            front_end.get_histogram_values(self.fileName[self.index], 'original_histogram.jpg')
+            pixmap = QPixmap('original_histogram.jpg')
+            pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+            self.OG_image_histogram.setPixmap(pixmap_scale)
+            self.OG_image_histogram.resize(pixmap_scale.width(),
+                                           pixmap_scale.height())
+            self.image_size_label.setText('Image Size: ' +
+                                          str(pixmap.width()) +
+                                          'x' +
+                                          str(pixmap.height()) +
+                                          ' pixels')
+            self.image_size_label.adjustSize()
+
+
+    @pyqtSlot()
+    def on_click_left_scroll(self):
+        if len(self.original) > 1:
+            self.index -= 1
+            if self.index < 0:
+                self.index = 0
+                return
+            pixmap = QPixmap(self.fileName[self.index])
+            pixmap_scale = pixmap.scaled(256, 256,
+                                         QtCore.Qt.KeepAspectRatio)
+            self.label_image.setPixmap(pixmap_scale)
+            self.label_image.resize(pixmap_scale.width(),
+                                    pixmap_scale.height())
+            front_end.get_histogram_values(self.fileName[self.index], 'original_histogram.jpg')
+            pixmap = QPixmap('original_histogram.jpg')
+            pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+            self.OG_image_histogram.setPixmap(pixmap_scale)
+            self.OG_image_histogram.resize(pixmap_scale.width(),
+                                           pixmap_scale.height())
+            self.image_size_label.setText('Image Size: ' +
+                                          str(pixmap.width()) +
+                                          'x' +
+                                          str(pixmap.height()) +
+                                          ' pixels')
+            self.image_size_label.adjustSize()
 
 
 if __name__ == '__main__':

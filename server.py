@@ -40,10 +40,10 @@ class ImageDB(MongoModel):
     """
     patient_id = fields.CharField(primary_key=True)
     original = fields.ListField()
-    histogram_count = fields.IntegerField()
-    contrast_count = fields.IntegerField()
-    log_count = fields.IntegerField()
-    reverse_count = fields.IntegerField()
+    histogram_count = fields.ListField()
+    contrast_count = fields.ListField()
+    log_count = fields.ListField()
+    reverse_count = fields.ListField()
     images = fields.ListField()
     processor = fields.ListField()
     images_time_stamp = fields.ListField()
@@ -66,7 +66,7 @@ def greeting():
     return jsonify(welcome)
 
 
-def add_new_patient(patient_id, original_file):
+def add_new_patient(patient_id, original_file, length):
     """ Adds new patient to image processor
 
     Returns:
@@ -74,11 +74,12 @@ def add_new_patient(patient_id, original_file):
             initialization
 
     """
+    count_list = [0] * length
     patient = ImageDB(int(format(patient_id)),
-                      histogram_count=0,
-                      contrast_count=0,
-                      log_count=0,
-                      reverse_count=0)
+                      histogram_count=count_list,
+                      contrast_count=count_list,
+                      log_count=count_list,
+                      reverse_count=count_list)
     patient.save()
     try:
         patient.original.append(original_file)
@@ -176,10 +177,12 @@ def get_last(patient_id):
     try:
         u = ImageDB.objects.raw({"_id": str(patient_id)}).first()
         dict_array = {
-            "original": u.original[0],
+            "original": u.original,
             "last_process": u.images[-1],
         }
     except ImageDB.DoesNotExist:
+        dict_array = 'DNE'
+    except IndexError:
         dict_array = 'DNE'
     return jsonify(dict_array)
 
@@ -205,31 +208,56 @@ def new_image():
     image_file_encoded = r['image_file']
     notes = r['notes']
     original = r['original']
-    image_file = decode_b64_image(image_file_encoded)
+    try:
+        index = r['index']
+        image_file = decode_b64_image(image_file_encoded[index])
+    except KeyError:
+        image_file = decode_b64_image(image_file_encoded)
     try:
         patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     except ImageDB.DoesNotExist:
         print('Could Not find user')
-        new = add_new_patient(patient_id, image_file)
+        length = len(original)
+        new = add_new_patient(patient_id, image_file, length)
         logging.debug(new)
     if process_id is 1:
         processor = 'Histogram Equalization'
-        patient.histogram_count += 1
+        if index:
+            count = patient.histogram_count
+            count[index] += 1
+            patient.histogram_count = count
+        else:
+            patient.histogram_count += 1
         processed_image = histogram_equalization(image_file)
         logging.debug(processor + ' was conducted')
     elif process_id is 2:
         processor = 'Contrast Switch'
-        patient.contrast_count += 1
+        if index:
+            count = patient.contrast_count
+            count[index] += 1
+            patient.contrast_count = count
+        else:
+            patient.contrast_count += 1
         processed_image = contrast_stretch(image_file)
         logging.debug(processor + ' was conducted')
     elif process_id is 3:
         processor = 'Log Compression'
-        patient.log_count += 1
+        if index:
+            count = patient.log_count
+            count[index] += 1
+            patient.log_count = count
+        else:
+            patient.log_count += 1
         processed_image = log_compression(image_file)
         logging.debug(processor + ' was conducted')
     elif process_id is 4:
         processor = 'Reverse Video'
-        patient.reverse_count += 1
+        if index:
+            count = patient.reverse_count
+            count[index] += 1
+            patient.reverse_count = count
+        else:
+            patient.reverse_count += 1
         processed_image = reverse_video(image_file)
         logging.debug(processor + ' was conducted')
     elif process_id is 0:
@@ -244,11 +272,14 @@ def new_image():
         patient.original = original
     patient.save()
     out = encode_file_as_b64(processed_image)
-    save_image(patient_id, processor, out, notes)
+    if index:
+        save_image(patient_id, processor, out, notes, index, image_file_encoded)
+    else:
+        save_image(patient_id, processor, out, notes)
     return jsonify(out)
 
 
-def save_image(patient_id, processor, image_file, notes):
+def save_image(patient_id, processor, image_file, notes, index=None, image_list=None):
     """
 
     :param patient_id: Usually mrn number
@@ -259,22 +290,47 @@ def save_image(patient_id, processor, image_file, notes):
     :return:
     """
     patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
-    try:
-        patient.images.append(image_file)
-    except AttributeError:
-        patient.images = image_file
-    try:
-        patient.images_time_stamp.append(datetime.datetime.now())
-    except AttributeError:
-        patient.images_time_stamp = datetime.datetime.now()
-    try:
-        patient.processor.append(processor)
-    except AttributeError:
-        patient.processor = processor
-    try:
-        patient.notes.append(notes)
-    except AttributeError:
-        patient.notes = notes
+    if not index:
+        try:
+            patient.images.append(image_file)
+        except AttributeError:
+            patient.images = image_file
+        try:
+            patient.images_time_stamp.append(datetime.datetime.now())
+        except AttributeError:
+            patient.images_time_stamp = datetime.datetime.now()
+        try:
+            patient.processor.append(processor)
+        except AttributeError:
+            patient.processor = processor
+        try:
+            patient.notes.append(notes)
+        except AttributeError:
+            patient.notes = notes
+    else:
+        image_list[index] = image_file
+        try:
+            patient.images.append(image_list)
+        except AttributeError:
+            patient.images = image_list
+        time_stamp_array = [0] * len(image_list)
+        time_stamp_array[index] = datetime.datetime.now()
+        try:
+            patient.images_time_stamp.append(time_stamp_array)
+        except AttributeError:
+            patient.images_time_stamp = time_stamp_array
+        processor_array = [''] * len(image_list)
+        processor_array[index] = processor
+        try:
+            patient.processor.append(processor_array)
+        except AttributeError:
+            patient.processor = processor_array
+        notes_array = [''] * len(image_list)
+        notes_array[index] = notes
+        try:
+            patient.notes.append(notes_array)
+        except AttributeError:
+            patient.notes = notes_array
     patient.save()
     return
 
