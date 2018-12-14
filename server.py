@@ -9,8 +9,7 @@ from skimage import io as im
 from skimage import io, exposure
 from PIL import Image
 import logging
-
-# logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
+logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 
 app = Flask(__name__)
 connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
@@ -300,6 +299,7 @@ def save_image(patient_id, processor, image_file, notes):
     except AttributeError:
         patient.notes = notes
     patient.save()
+    logging.debug('Patient saved')
     return
 
 
@@ -486,4 +486,5 @@ def reverse_video(pil_image):
 
 if __name__ == "__main__":
     connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
-    app.run(host="127.0.0.1")
+    #app.run(host="127.0.0.1")
+    app.run(host="0.0.0.0")
