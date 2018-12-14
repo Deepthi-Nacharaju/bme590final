@@ -64,7 +64,7 @@ def greeting():
     """
 
     welcome = "Welcome to the image processor!"
-    return jsonify(welcome)
+    return jsonify(welcome), 200
 
 
 def add_new_patient(patient_id, original_file):
@@ -90,7 +90,7 @@ def add_new_patient(patient_id, original_file):
         patient.original = original_file
     patient.save()
     new_patient = 'New Patient Initialized with ID: ' + str(format(patient_id))
-    return print(new_patient)
+    return print(new_patient), 200
 
 
 @app.route("/data/all/<patient_id>", methods=["GET"])
@@ -122,7 +122,7 @@ def get_all_data(patient_id):
         }
     except ImageDB.DoesNotExist:
         dict_array = 'DNE'
-    return jsonify(dict_array)
+    return jsonify(dict_array), 200
 
 
 @app.route("/data/stack/<patient_id>", methods=["GET"])
@@ -146,7 +146,7 @@ def get_stack(patient_id):
         }
     except ImageDB.DoesNotExist:
         dict_array = 'DNE'
-    return jsonify(dict_array)
+    return jsonify(dict_array), 200
 
 
 @app.route("/data/<patient_id>", methods=["GET"])
@@ -173,7 +173,7 @@ def get_data(patient_id):
         }
     except ImageDB.DoesNotExist:
         dict_array = 'DNE'
-    return jsonify(dict_array)
+    return jsonify(dict_array), 200
 
 
 @app.route("/data/last/<patient_id>", methods=["GET"])
@@ -198,7 +198,7 @@ def get_last(patient_id):
         }
     except ImageDB.DoesNotExist:
         dict_array = 'DNE'
-    return jsonify(dict_array)
+    return jsonify(dict_array), 200
 
 
 @app.route("/new_image", methods=["POST"])
@@ -263,7 +263,7 @@ def new_image():
     patient.save()
     out = encode_file_as_b64(processed_image)
     save_image(patient_id, processor, out, notes)
-    return jsonify(out)
+    return jsonify(out), 200
 
 
 def save_image(patient_id, processor, image_file, notes):
