@@ -1,23 +1,15 @@
 from flask import Flask, jsonify, request
-import requests
-import pymodm
 from pymodm import connect
 from pymodm import MongoModel, fields
 import datetime
-import logging
 import base64
 import io as io2
 import numpy as np
 from skimage import io as im
-# logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
-import matplotlib
-from matplotlib import pyplot as plt
-import matplotlib.image as mpimg
-from skimage import data, io, filters, img_as_float, exposure
-from PIL import Image, ImageStat
-import server
-
-# logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
+from skimage import io, exposure
+from PIL import Image
+import logging
+logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 
 app = Flask(__name__)
 connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
@@ -169,41 +161,39 @@ def new_image():
     try:
         patient = ImageDB.objects.raw({"_id": str(patient_id)}).first()
     except ImageDB.DoesNotExist:
-        add_new_patient(patient_id)
+        new = add_new_patient(patient_id)
+        logging.debug(new)
     image_file = decode_b64_image(image_file_encoded)
     if process_id is 1:
         processor = 'Histogram Equalization'
         patient.histogram_count += 1
         processed_image = histogram_equalization(image_file)
+        logging.debug(processor + ' was conducted')
     elif process_id is 2:
         processor = 'Contrast Switch'
         patient.contrast_count += 1
         processed_image = contrast_stretch(image_file)
+        logging.debug(processor + ' was conducted')
     elif process_id is 3:
         processor = 'Log Compression'
         patient.log_count += 1
         processed_image = log_compression(image_file)
+        logging.debug(processor + ' was conducted')
     elif process_id is 4:
         processor = 'Reverse Video'
         patient.reverse_count += 1
         processed_image = reverse_video(image_file)
+        logging.debug(processor + ' was conducted')
     elif process_id is 0:
         processor = 'Raw Image'
         processed_image = image_file
+        logging.debug(processor)
     else:
         return jsonify('Not a valid ID')
     patient.save()
     out = encode_file_as_b64(processed_image)
     save_image(patient_id, processor, out, image_file_encoded, notes)
     return jsonify(out)
-
-
-def validate_image(image_file):
-    try:
-        image_file.decode()
-    except AttributeError:
-        print('Image file is not a "bytes" class.')
-    return
 
 
 def save_image(patient_id, processor, image_file, original, notes):
@@ -338,68 +328,6 @@ def reverse_video(pil_image):
     return processed_image
 
 
-Image_Formats = [
-    "JPEG",
-    "PNG",
-    "TIFF"
-]
-
-
-class ValidationError(Exception):
-    def __init__(self, message):
-        self.message = message
-
-
-def validate_file_format(requested_format):
-    if requested_format not in Image_Formats:
-        raise ValidationError("File format '{0}' not supported"
-                              .format(requested_format))
-
-
-def save_as_format(pil_image, file_format, filename):
-    """
-    This function handles a Pillow image object and converts it to
-    a user-specified file format with a user-specified filename and
-    saves it as '<filename>.<format>'. The function will return a
-    ValidationError if the requested file_format is not supported,
-    and use "JPEG" as default.
-
-    Args:
-        pil_image (array): uint-8 image array
-        file_format: string
-        filename: string, pathlib.Path object or file object
-    Raises:
-        ValidationError: If the requested format is not JPEG, PNG, TIFF
-        ValueError: If the output format could not be determined from
-              the file name.
-        IOError – If the file could not be written. The file may have been
-             created, and may contain partial data.
-    """
-    try:
-        validate_file_format(file_format)
-    except ValidationError as inst:
-        print(inst.message)
-        file_format = "JPEG"
-    try:
-        check_filename(filename)
-    except ValueError:
-        print("Incorrect filename")
-    pil_image.save(filename, file_format)
-    return
-
-
-def check_filename(filename):
-    return True
-
-
 if __name__ == "__main__":
     connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
     app.run(host="127.0.0.1")
-    # app.run(host="0.0.0.0")
-    dogsJpg = Image.open("Dogs.jpg", mode='r')
-    # dogsJpg = np.asarray(Image.open("Dogs.jpg", mode='r'))
-    # opens PIL image as a ndarray
-    encoded = encode_file_as_b64(dogsJpg)  # induces UnicodeDecodeError
-    # im = PIL.Image.fromarray(numpy.uint8(I))
-    # converts ndarray to Pillow image
-    save_as_format(dogsJpg, "BMP", 'Doggo')
