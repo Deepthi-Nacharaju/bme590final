@@ -91,6 +91,26 @@ Any action that requires a POST or GET request will post an update to this windo
     
 See documentation for additional details: '\bme590final\docs\build\html\index.html' 
 
+#### Multiple Images
+The branch multiple_images contains development for uploading more than one image 
+to the image processor for a given patient ID. It allows the user to scroll through the images in the GUI,
+but the server has issues with trying to manipulate nested lists of byte like objects. This branch can be
+explored to evaluate the development of this feature, though not complete.
+
+#### Setting up the Server
+Running the following command in the terminal will initialize the server:
+
+    FLASK_APP=server.py flask run
+    
+In addition, in server.py:
+
+    __app__ == '__main__':
+        connect("mongodb://bme590:Dukebm3^@ds253889.mlab.com:53889/imageprocessor")
+        app.run(host="127.0.0.1")
+And in GUI.py:
+
+    server = "http://127.0.0.1:5000/"
+
 ### License
 MIT License
 
