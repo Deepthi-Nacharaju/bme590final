@@ -570,6 +570,10 @@ class App(QMainWindow):
         image and makes a POST request to the server
         :return:
         """
+        if not self.notes.toPlainText():
+            notes = 'No Additional Notes'
+        else:
+            notes = self.notes.toPlainText()
         if self.fileName == '':
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
@@ -590,6 +594,7 @@ class App(QMainWindow):
             'patient_id': str(self.textbox.text()),
             'process_id': 2,
             'image_file': send_string,
+            'notes': notes
         }
         try:
             r = requests.post(server_HE, json=post_dict)
@@ -639,6 +644,10 @@ class App(QMainWindow):
         makes a POST request to the server
         :return:
         """
+        if not self.notes.toPlainText():
+            notes = 'No Additional Notes'
+        else:
+            notes = self.notes.toPlainText()
         if self.fileName == '':
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
@@ -659,6 +668,7 @@ class App(QMainWindow):
             'patient_id': str(self.textbox.text()),
             'process_id': 3,
             'image_file': send_string,
+            'notes': notes
         }
         try:
             r = requests.post(server_HE, json=post_dict)
@@ -708,6 +718,10 @@ class App(QMainWindow):
         makes a POST request to the server
         :return:
         """
+        if not self.notes.toPlainText():
+            notes = 'No Additional Notes'
+        else:
+            notes = self.notes.toPlainText()
         if self.fileName == '':
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
@@ -728,6 +742,7 @@ class App(QMainWindow):
             'patient_id': str(self.textbox.text()),
             'process_id': 4,
             'image_file': send_string,
+            'notes': notes
         }
         try:
             r = requests.post(server_HE, json=post_dict)
