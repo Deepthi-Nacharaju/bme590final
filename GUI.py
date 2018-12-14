@@ -285,6 +285,7 @@ class App(QMainWindow):
 
         self.id_status = self.textbox.text()
         self.textbox.textChanged.connect(self.on_click_clear_OG)
+        self.textbox.textChanged.connect(self.get_request)
 
         self.current_image = ''
         self.show()
@@ -409,18 +410,23 @@ class App(QMainWindow):
             if r == 'DNE':
                 self.server_status.setText('Patient Does Not Exist')
                 pixmap = QPixmap('white.png')
-                pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
+                pixmap_scale = pixmap.scaled(256, 256,
+                                             QtCore.Qt.KeepAspectRatio)
                 self.label_image.setPixmap(pixmap_scale)
-                self.label_image.resize(pixmap_scale.width(), pixmap_scale.height())
-                pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+                self.label_image.resize(pixmap_scale.width(),
+                                        pixmap_scale.height())
+                pixmap_scale = pixmap.scaled(400, 400,
+                                             QtCore.Qt.KeepAspectRatio)
                 self.OG_image_histogram.setPixmap(pixmap_scale)
                 self.OG_image_histogram.resize(pixmap_scale.width(),
                                                pixmap_scale.height())
-                pixmap_scale = pixmap.scaled(256, 256, QtCore.Qt.KeepAspectRatio)
+                pixmap_scale = pixmap.scaled(256, 256,
+                                             QtCore.Qt.KeepAspectRatio)
                 self.label_image_processed.setPixmap(pixmap_scale)
                 self.label_image_processed.resize(pixmap_scale.width(),
                                                   pixmap_scale.height())
-                pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+                pixmap_scale = pixmap.scaled(400, 400,
+                                             QtCore.Qt.KeepAspectRatio)
                 self.processed_image_histogram.setPixmap(pixmap_scale)
                 self.processed_image_histogram.resize(pixmap_scale.width(),
                                                       pixmap_scale.height())
@@ -482,6 +488,7 @@ class App(QMainWindow):
         self.processed_image_histogram.resize(pixmap_scale.width(),
                                               pixmap_scale.height())
         self.button_open.setEnabled(False)
+        self.process_state = 1
 
     @pyqtSlot()
     def on_click_JPEG(self):
@@ -546,8 +553,12 @@ class App(QMainWindow):
                                                   os.getcwd(),
                                                   "Image files (*.tif)")
         if fileName:
-            save_image = Image.open('save_as_jpg.jpg')
-            save_image.save(fileName, save_all=True)
+            server_tif = server + 'data/stack/<patient_id>'
+            r = requests.get(server_tif)
+            r = r.json()
+            for image in r:
+                save_image = Image.open('save_as_jpg.jpg')
+                save_image.save(fileName, save_all=True)
 
     @pyqtSlot()
     def on_click_HE(self):

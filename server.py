@@ -9,6 +9,7 @@ from skimage import io as im
 from skimage import io, exposure
 from PIL import Image
 import logging
+
 # logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 
 app = Flask(__name__)
@@ -112,6 +113,18 @@ def get_all_data(patient_id):
             "processor": u.processor,
             "images_time_stamp": u.images_time_stamp,
             "notes": u.notes,
+        }
+    except ImageDB.DoesNotExist:
+        dict_array = 'DNE'
+    return jsonify(dict_array)
+
+
+@app.route("/data/stack/<patient_id>", methods=["GET"])
+def get_stack(patient_id):
+    try:
+        u = ImageDB.objects.raw({"_id": str(format(patient_id))}).first()
+        dict_array = {
+            "images": u.images,
         }
     except ImageDB.DoesNotExist:
         dict_array = 'DNE'
