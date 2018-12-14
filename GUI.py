@@ -288,6 +288,7 @@ class App(QMainWindow):
         self.textbox.textChanged.connect(self.get_request)
 
         self.current_image = ''
+        self.original = ''
         self.show()
 
     @pyqtSlot()
@@ -324,6 +325,7 @@ class App(QMainWindow):
                                           ' pixels')
             self.image_size_label.adjustSize()
             self.current_image = front_end.encode_file_as_b64(self.fileName)
+            self.original = self.current_image
 
     @pyqtSlot()
     def get_request(self):
@@ -334,9 +336,9 @@ class App(QMainWindow):
         :return:
         """
         patient_id = self.textbox.text()
+        if not patient_id:
+            return
         add = ''
-        if self.id_status:
-            add = 'Post Request Successful' + '\n'
         self.id_status = patient_id
         get_server = server + "data/" + patient_id
         try:
@@ -395,10 +397,13 @@ class App(QMainWindow):
     def on_click_clear_OG(self):
         """
 
-        Clears original image space
+        Updates image spaces with last procssed image
+        for the specified patient ID
         :return:
         """
         patient_id = self.textbox.text()
+        if not patient_id:
+            return
         get_server = server + "data/last/" + patient_id
         try:
             r = requests.get(get_server)
@@ -439,12 +444,15 @@ class App(QMainWindow):
                 self.reverse_count.setText('0')
                 self.reverse_count.adjustSize()
                 self.button_open.setEnabled(True)
+                self.current_image = ''
+                self.original = ''
                 return
 
         except json.decoder.JSONDecodeError:
             self.server_status.setText('Get Request Decode Error')
         try:
             image_bytes = base64.b64decode(r['original'])
+            self.original = r['original']
         except TypeError:
             pass
             return
@@ -574,17 +582,15 @@ class App(QMainWindow):
             notes = 'No Additional Notes'
         else:
             notes = self.notes.toPlainText()
-        if self.fileName == '':
+        if self.current_image == '':
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
             msg.setText('Must Open Image')
             msg.setWindowTitle('Error')
             msg.exec()
             return
-        try:
-            send_string = front_end.encode_file_as_b64(self.fileName)
-        except AttributeError:
-            self.open_error()
+        if self.current_image == '':
+            self.open_error
             return
         if self.textbox.text() == "":
             self.no_patient_error()
@@ -592,7 +598,7 @@ class App(QMainWindow):
             'patient_id': str(self.textbox.text()),
             'process_id': 1,
             'image_file': self.current_image,
-            'original': front_end.encode_file_as_b64(self.fileName),
+            'original': self.original,
             'notes': notes
         }
         try:
@@ -648,7 +654,7 @@ class App(QMainWindow):
             notes = 'No Additional Notes'
         else:
             notes = self.notes.toPlainText()
-        if self.fileName == '':
+        if self.current_image == '':
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
             msg.setText('Must Open Image')
@@ -657,10 +663,8 @@ class App(QMainWindow):
             return
         one_time = datetime.datetime.now()
         server_HE = server + 'new_image'
-        try:
-            send_string = front_end.encode_file_as_b64(self.fileName)
-        except AttributeError:
-            self.open_error()
+        if self.current_image == '':
+            self.open_error
             return
         if self.textbox.text() == "":
             self.no_patient_error()
@@ -668,7 +672,7 @@ class App(QMainWindow):
             'patient_id': str(self.textbox.text()),
             'process_id': 2,
             'image_file': self.current_image,
-            'original': front_end.encode_file_as_b64(self.fileName),
+            'original': self.original,
             'notes': notes
         }
         try:
@@ -724,7 +728,7 @@ class App(QMainWindow):
             notes = 'No Additional Notes'
         else:
             notes = self.notes.toPlainText()
-        if self.fileName == '':
+        if self.current_image == '':
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
             msg.setText('Must Open Image')
@@ -733,10 +737,8 @@ class App(QMainWindow):
             return
         one_time = datetime.datetime.now()
         server_HE = server + 'new_image'
-        try:
-            send_string = front_end.encode_file_as_b64(self.fileName)
-        except AttributeError:
-            self.open_error()
+        if self.current_image == '':
+            self.open_error
             return
         if self.textbox.text() == "":
             self.no_patient_error()
@@ -744,7 +746,7 @@ class App(QMainWindow):
             'patient_id': str(self.textbox.text()),
             'process_id': 3,
             'image_file': self.current_image,
-            'original': front_end.encode_file_as_b64(self.fileName),
+            'original': self.original,
             'notes': notes
         }
         try:
@@ -800,7 +802,7 @@ class App(QMainWindow):
             notes = 'No Additional Notes'
         else:
             notes = self.notes.toPlainText()
-        if self.fileName == '':
+        if self.current_image == '':
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Critical)
             msg.setText('Must Open Image')
@@ -809,10 +811,8 @@ class App(QMainWindow):
             return
         one_time = datetime.datetime.now()
         server_HE = server + 'new_image'
-        try:
-            send_string = front_end.encode_file_as_b64(self.fileName)
-        except AttributeError:
-            self.open_error()
+        if self.current_image == '':
+            self.open_error
             return
         if self.textbox.text() == "":
             self.no_patient_error()
@@ -820,7 +820,7 @@ class App(QMainWindow):
             'patient_id': str(self.textbox.text()),
             'process_id': 4,
             'image_file': self.current_image,
-            'original': front_end.encode_file_as_b64(self.fileName),
+            'original': self.original,
             'notes': notes
         }
         try:

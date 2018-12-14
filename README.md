@@ -64,3 +64,11 @@ Any action that requires a POST or GET request will post an update to this windo
     * `r['processor']`
     * `r['images_time_stamp']`
     * `r['notes']`
+
+* `/data/stack/<patient_id>`
+  * list of all images processed for a specified patient ID
+  
+* `/data/last/<patient_id>`
+  * Get the original image and last processed image for a specified user ID to continue processing
+    * `r['original']`
+    * `r['last_process]`
