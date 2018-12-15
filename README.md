@@ -111,6 +111,13 @@ And in GUI.py:
 
     server = "http://127.0.0.1:5000/"
 
+#### Deliverables
+* Robust [README.md](README.md) describing the final performance of the project.
+* Tagged project code: [bme590final](https://github.com/Deepthi-Nacharaju/bme590final)
+* Link to deployed web server: http://vcm-7301.vm.duke.edu:5000/
+* [RFC document](https://docs.google.com/document/d/1WOm3omIRztGDvEBmDNXnpbt2n_0UI8ObQQSgk6ZhMgE/edit?usp=sharing)
+* [Recorded demo](https://www.icloud.com/attachment/?u=https%3A%2F%2Fcvws.icloud-content.com%2FB%2FATUprsaV6XdVxkFuh_aGe0x4e8SdAXBS639PM4lr-pafJvteXNbrcT7_%2F%24%7Bf%7D%3Fo%3DAkGhIaF1yzmLqv50DaqFENksmCzLL5OQg2Ky4czI5tOs%26v%3D1%26x%3D3%26a%3DByeID9Xdhyfb23Js4Wf52Mnlr4frA3yCSAEACAHIAP9w7nGEA7zZRw%26e%3D1547423706%26k%3D%24%7Buk%7D%26fl%3D%26r%3D7FC3F1CC-3F42-42D0-B9C2-2D4E5CC75FE4-1%26ckc%3Dcom.apple.largeattachment%26ckz%3DDC5B2A1A-CAB7-431B-930F-6048E15AB09B%26p%3D42%26s%3DUX-7EI96Iw0J-gPCzh2JDZgSUes&uk=DiNdOS4r2HBaLWekipFbcw&f=IMG_2575.MOV&sz=686681005) of image processor in action. 
+
 ### License
 MIT License
 
