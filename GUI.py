@@ -642,6 +642,7 @@ class App(QMainWindow):
             self.process_time.setText(str(time_delta))
             self.process_time.adjustSize()
             self.process_state = 1
+            self.button_open.setEnabled(False)
         except json.decoder.JSONDecodeError:
             self.server_status.setText('Server Returned Nothing')
 
@@ -716,6 +717,7 @@ class App(QMainWindow):
             self.process_time.setText(str(time_delta))
             self.process_time.adjustSize()
             self.process_state = 1
+            self.button_open.setEnabled(False)
         except json.decoder.JSONDecodeError:
             self.server_status.setText('Server Returned Nothing')
 
@@ -790,6 +792,7 @@ class App(QMainWindow):
             self.process_time.setText(str(time_delta))
             self.process_time.adjustSize()
             self.process_state = 1
+            self.button_open.setEnabled(False)
         except json.decoder.JSONDecodeError:
             self.server_status.setText('Server Returned Nothing')
 
@@ -864,6 +867,7 @@ class App(QMainWindow):
             self.process_time.setText(str(time_delta))
             self.process_time.adjustSize()
             self.process_state = 1
+            self.button_open.setEnabled(False)
         except json.decoder.JSONDecodeError:
             self.server_status.setText('Server Returned Nothing')
 
