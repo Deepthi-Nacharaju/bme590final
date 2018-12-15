@@ -293,7 +293,7 @@ class App(QMainWindow):
         self.histogram_count_value = []
         self.contrast_count_value = []
         self.log_count_value = []
-        self.reverse_count_value =[]
+        self.reverse_count_value = []
         self.index = 0
 
         # Scroll Buttons
@@ -320,26 +320,30 @@ class App(QMainWindow):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         current = os.getcwd()
-        fileName, _ = QFileDialog.getOpenFileNames(self, "Open Image", current,
-                                                  "Image files (*.jpg *.png)",
-                                                  options=options)
+        fileName, _ = QFileDialog.getOpenFileNames(self, "Open Image",
+                                                   current,
+                                                   "Image files (*.jpg *.png)",
+                                                   options=options)
         if fileName:
             self.fileName = fileName
             if len(fileName) > 1:
                 pixmap = QPixmap(fileName[0])
                 pic_list = list()
                 for x in range(len(fileName)):
-                    pic_list.append(front_end.encode_file_as_b64(self.fileName[x]))
+                    pic_list.append(front_end.encode_file_as_b64
+                                    (self.fileName[x]))
                 self.current_image = pic_list
             else:
                 pixmap = QPixmap(fileName)
-                self.current_image = front_end.encode_file_as_b64(self.fileName)
+                self.current_image = front_end.\
+                    encode_file_as_b64(self.fileName)
             pixmap_scale = pixmap.scaled(256, 256,
                                          QtCore.Qt.KeepAspectRatio)
             self.label_image.setPixmap(pixmap_scale)
             self.label_image.resize(pixmap_scale.width(),
                                     pixmap_scale.height())
-            front_end.get_histogram_values(fileName[0], 'original_histogram.jpg')
+            front_end.get_histogram_values(fileName[0],
+                                           'original_histogram.jpg')
             pixmap = QPixmap('original_histogram.jpg')
             pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
             self.OG_image_histogram.setPixmap(pixmap_scale)
@@ -381,13 +385,17 @@ class App(QMainWindow):
                 return
             try:
                 if len(r['histogram_count']) > 1:
-                    self.histogram_count.setText(str(r['histogram_count'][self.index]))
+                    self.histogram_count.setText(str(r['histogram_count']
+                                                     [self.index]))
                     self.histogram_count.adjustSize()
-                    self.contrast_count.setText(str(r['contrast_count'][self.index]))
+                    self.contrast_count.setText(str(r['contrast_count']
+                                                    [self.index]))
                     self.contrast_count.adjustSize()
-                    self.log_count.setText(str(r['log_count'][self.index]))
+                    self.log_count.setText(str(r['log_count']
+                                               [self.index]))
                     self.log_count.adjustSize()
-                    self.reverse_count.setText(str(r['reverse_count'][self.index]))
+                    self.reverse_count.setText(str(r['reverse_count']
+                                                   [self.index]))
                     self.reverse_count.adjustSize()
                     self.server_status.setText(add +
                                                'Get Request Successful')
@@ -925,7 +933,6 @@ class App(QMainWindow):
         except json.decoder.JSONDecodeError:
             self.server_status.setText('Server Returned Nothing')
 
-
     @pyqtSlot()
     def on_click_right_scroll(self):
         if len(self.original) > 1:
@@ -940,7 +947,8 @@ class App(QMainWindow):
             self.label_image.resize(pixmap_scale.width(),
                                     pixmap_scale.height())
             print(self.index)
-            front_end.get_histogram_values(self.fileName[self.index], 'original_histogram.jpg')
+            front_end.get_histogram_values(self.fileName[self.index],
+                                           'original_histogram.jpg')
             pixmap = QPixmap('original_histogram.jpg')
             pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
             self.OG_image_histogram.setPixmap(pixmap_scale)
@@ -952,7 +960,6 @@ class App(QMainWindow):
                                           str(pixmap.height()) +
                                           ' pixels')
             self.image_size_label.adjustSize()
-
 
     @pyqtSlot()
     def on_click_left_scroll(self):
@@ -967,7 +974,8 @@ class App(QMainWindow):
             self.label_image.setPixmap(pixmap_scale)
             self.label_image.resize(pixmap_scale.width(),
                                     pixmap_scale.height())
-            front_end.get_histogram_values(self.fileName[self.index], 'original_histogram.jpg')
+            front_end.get_histogram_values(self.fileName[self.index],
+                                           'original_histogram.jpg')
             pixmap = QPixmap('original_histogram.jpg')
             pixmap_scale = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
             self.OG_image_histogram.setPixmap(pixmap_scale)

@@ -9,6 +9,7 @@ from skimage import io as im
 from skimage import io, exposure
 from PIL import Image
 import logging
+from zipfile import ZipFile
 
 # logging.basicConfig(filename='log.txt', level=logging.DEBUG, filemode='w')
 
@@ -273,13 +274,15 @@ def new_image():
     patient.save()
     out = encode_file_as_b64(processed_image)
     if index:
-        save_image(patient_id, processor, out, notes, index, image_file_encoded)
+        save_image(patient_id, processor, out, notes,
+                   index, image_file_encoded)
     else:
         save_image(patient_id, processor, out, notes)
     return jsonify(out)
 
 
-def save_image(patient_id, processor, image_file, notes, index=None, image_list=None):
+def save_image(patient_id, processor, image_file, notes,
+               index=None, image_list=None):
     """
 
     :param patient_id: Usually mrn number
@@ -455,6 +458,30 @@ def reverse_video(pil_image):
         pixel[...] = 255 - pixel
     processed_image = pil_image.astype('uint8')
     return processed_image
+
+
+def read_zip(filename):
+    """This function opens each file inside a zip file.
+
+    :param filename (string): .zip file name
+    :return: extracted files in current directory
+    """
+    with Zipfile(fiename, 'r') as zip:
+        zip.printdir()
+        zip.extractall()
+
+
+def write_zip(url):
+    """ This function downloads a ZIP file via URL
+    and extract its contents in memory
+    :param: url (str): url
+    :return: (filename, file-like object) pairs
+    """
+    response = requests.get(url)
+    with zipfile.ZipFile(io.BytesIO(response.content)) as zip:
+        for zipinfo in zip.infolist():
+            with zip.open(zipinfo) as file:
+                yield zipinfo.filename, file
 
 
 if __name__ == "__main__":
